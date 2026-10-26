@@ -5,6 +5,7 @@ from odoo import _, http
 from odoo.exceptions import AccessError, MissingError
 from odoo.http import request
 from odoo.osv import expression
+from odoo.tools import consteq
 
 from odoo.addons.base.models.assetsbundle import AssetsBundle
 from odoo.addons.portal.controllers.portal import CustomerPortal
@@ -33,6 +34,10 @@ class PortalSign(CustomerPortal):
 
         Every ``/sign_oca/*`` route of a signer starts with this check.
 
+        The token must match even for a user whose access rights let them
+        read the signer: the link opens one signer's page, whoever follows
+        it.
+
         :param int signer_id: id of a ``sign.oca.request.signer``
         :param str access_token: the signer's portal access token
         :return: the signer, as superuser
@@ -41,9 +46,16 @@ class PortalSign(CustomerPortal):
             conditions, and raise a subclass of AccessError that
             ``_sign_oca_access_error_response`` turns into its own response.
         """
-        return self._document_check_access(
+        signer_sudo = self._document_check_access(
             "sign.oca.request.signer", signer_id, access_token
         )
+        if not (
+            access_token
+            and signer_sudo.access_token
+            and consteq(signer_sudo.access_token, access_token)
+        ):
+            raise AccessError(request.env._("This signature link is not valid."))
+        return signer_sudo
 
     def _sign_oca_access_error_response(self, signer_id, access_token, error):
         """Return the response of a ``/sign_oca/*`` route refused by
