@@ -30,6 +30,10 @@
     </template>
     <template id="portal_sign_document_signed">
         <t t-call="web.layout">
+            <t
+                t-set="html_data"
+                t-value="{'lang': (request.env.lang or 'en_US').replace('_', '-')}"
+            />
             <t t-set="head">
                 <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <t t-call-assets="oca_sign.assets_frontend_sign" t-js="false" />

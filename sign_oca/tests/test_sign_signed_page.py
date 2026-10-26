@@ -87,3 +87,7 @@ class TestSignSignedPage(HttpCase):
         self.request.sudo().state = "3_cancel"
         response = self.url_open(self.download_url, allow_redirects=False)
         self.assertEqual(response.status_code, 404)
+
+    def test_page_language(self):
+        response = self.url_open(self.signer.access_url)
+        self.assertIn('lang="en-US"', response.text)
