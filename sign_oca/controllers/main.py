@@ -169,7 +169,7 @@ class PortalSign(CustomerPortal):
         searchbar_filters = {
             "all": {"label": _("All"), "domain": []},
             "sent": {
-                "label": _("sent"),
+                "label": _("Sent"),
                 "domain": [("request_id.state", "=", "0_sent")],
             },
             "signed": {
