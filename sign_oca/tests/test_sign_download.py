@@ -45,11 +45,28 @@ class TestSignDownload(HttpCase):
         cls.request.state = "2_signed"
         cls.url = f"/my/sign/{cls.request.id}/download"
 
+    def _attachment(self):
+        return (
+            self.env["ir.attachment"]
+            .sudo()
+            .search(
+                [
+                    ("res_model", "=", "sign.oca.request"),
+                    ("res_id", "=", self.request.id),
+                    ("res_field", "=", "data"),
+                ]
+            )
+        )
+
     def test_download_signer(self):
         self.authenticate("sign_download_signer", "sign_download_signer")
         response = self.url_open(self.url, allow_redirects=False)
-        self.assertIn(response.status_code, (302, 303))
-        self.assertIn("/web/content/", response.headers["Location"])
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, base64.b64decode(self.request.data))
+        self.assertIn("attachment", response.headers["Content-Disposition"])
+        self.assertIn(".pdf", response.headers["Content-Disposition"])
+        # The file is streamed: no lasting token opens the attachment.
+        self.assertFalse(self._attachment().access_token)
 
     def test_download_not_signer(self):
         self.authenticate("sign_download_other", "sign_download_other")
@@ -59,4 +76,4 @@ class TestSignDownload(HttpCase):
     def test_download_reader(self):
         self.authenticate("admin", "admin")
         response = self.url_open(self.url, allow_redirects=False)
-        self.assertIn(response.status_code, (302, 303))
+        self.assertEqual(response.status_code, 200)
