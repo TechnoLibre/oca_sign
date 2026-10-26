@@ -436,10 +436,78 @@ class SignOcaRequest(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        if not self.env.su:
+            for vals in vals_list:
+                self._check_server_fields({k: v for k, v in vals.items() if v})
         records = super().create(vals_list)
         for record in records:
             record._set_action_log("create")
         return records
+
+    def write(self, vals):
+        if not self.env.su:
+            self._check_server_fields(vals)
+            if any(record.state != "1_draft" for record in self):
+                self._check_sent_fields(vals)
+            if "state" in vals:
+                for record in self:
+                    if record.state != vals["state"] and not record._can_set_state(
+                        vals["state"]
+                    ):
+                        raise UserError(
+                            self.env._(
+                                "The state of %(name)s cannot be set to %(state)s.",
+                                name=record.name,
+                                state=vals["state"],
+                            )
+                        )
+        return super().write(vals)
+
+    def _get_server_fields(self):
+        """Return the names of the fields only the server writes.
+
+        A caller without superuser rights may neither create nor write them:
+        they record what the signature process did.
+        """
+        return {"current_hash"}
+
+    def _get_sent_fields(self):
+        """Return the names of the fields fixed once the request leaves draft.
+
+        After sending, only the signature process changes them, as
+        superuser.
+        """
+        return {"data", "signatory_data", "template_id"}
+
+    def _check_server_fields(self, vals):
+        """Raise when ``vals`` writes a field of ``_get_server_fields``."""
+        names = set(vals) & self._get_server_fields()
+        if names:
+            raise UserError(
+                self.env._(
+                    "Only the signature process may write %s.",
+                    ", ".join(sorted(names)),
+                )
+            )
+
+    def _check_sent_fields(self, vals):
+        """Raise when ``vals`` writes a field of ``_get_sent_fields``."""
+        names = set(vals) & self._get_sent_fields()
+        if names:
+            raise UserError(
+                self.env._(
+                    "%s cannot change once the request is sent.",
+                    ", ".join(sorted(names)),
+                )
+            )
+
+    def _can_set_state(self, state):
+        """Tell whether a caller without superuser rights may move this
+        request to ``state``: send a draft (``0_sent``) or cancel it
+        (``3_cancel``). The other states come from the signature process.
+        """
+        self.ensure_one()
+        return state == "3_cancel" or (state == "0_sent" and self.state == "1_draft")
 
 
 class SignOcaRequestSigner(models.Model):
@@ -473,6 +541,78 @@ class SignOcaRequestSigner(models.Model):
     altered_hash = fields.Boolean(compute="_compute_altered_hash")
     latitude = fields.Float()
     longitude = fields.Float()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        if not self.env.su:
+            for vals in vals_list:
+                self._check_server_fields({k: v for k, v in vals.items() if v})
+                sign_request = self.env["sign.oca.request"].browse(
+                    vals.get("request_id")
+                )
+                if sign_request and sign_request.state != "1_draft":
+                    raise UserError(
+                        self.env._("Signers cannot be added to a sent request.")
+                    )
+        return super().create(vals_list)
+
+    def write(self, vals):
+        if not self.env.su:
+            self._check_server_fields(vals)
+            if any(signer.request_id.state != "1_draft" for signer in self):
+                self._check_sent_fields(vals)
+        return super().write(vals)
+
+    def unlink(self):
+        if not self.env.su and any(
+            signer.request_id.state != "1_draft" for signer in self
+        ):
+            raise UserError(
+                self.env._("Signers cannot be removed from a sent request.")
+            )
+        return super().unlink()
+
+    def _get_server_fields(self):
+        """Return the names of the fields only the server writes.
+
+        A caller without superuser rights may neither create nor write them:
+        they record the signature and its inalterability chain.
+        """
+        return {
+            "signed_on",
+            "signature_hash",
+            "inalterable_hash",
+            "secure_sequence_number",
+            "sequence_id",
+            "latitude",
+            "longitude",
+        }
+
+    def _get_sent_fields(self):
+        """Return the names of the fields fixed once the request leaves draft."""
+        return {"partner_id", "role_id", "request_id"}
+
+    def _check_server_fields(self, vals):
+        """Raise when ``vals`` writes a field of ``_get_server_fields``."""
+        names = set(vals) & self._get_server_fields()
+        if names:
+            raise UserError(
+                self.env._(
+                    "Only the signature process may write %s.",
+                    ", ".join(sorted(names)),
+                )
+            )
+
+    def _check_sent_fields(self, vals):
+        """Raise when ``vals`` writes a field of ``_get_sent_fields``."""
+        names = set(vals) & self._get_sent_fields()
+        if names:
+            raise UserError(
+                self.env._(
+                    "%s cannot change once the request is sent.",
+                    ", ".join(sorted(names)),
+                )
+            )
 
     @api.depends("request_id.record_ref")
     def _compute_model(self):
@@ -539,9 +679,11 @@ class SignOcaRequestSigner(models.Model):
     def _check_can_sign(self):
         """Raise when this signer may not sign now.
 
-        By default the signer must not have signed yet and the request must
-        be sent (``0_sent``). Overrides call ``super()`` and add their own
-        conditions.
+        By default the signer must not have signed yet, the request must be
+        sent (``0_sent``), and a caller without superuser rights must be one
+        ``is_allow_signature`` lets sign. The portal routes call it as
+        superuser, once their token check passed. Overrides call ``super()``
+        and add their own conditions.
 
         :raise ValidationError: with the reason, shown to the signer
         """
@@ -553,6 +695,10 @@ class SignOcaRequestSigner(models.Model):
             )
         if self.request_id.state != "0_sent":
             raise ValidationError(self.env._("Request cannot be signed"))
+        if not self.env.su and not self.is_allow_signature:
+            raise ValidationError(
+                self.env._("You are not allowed to sign this document.")
+            )
 
     def _can_sign(self):
         """Return whether ``_check_can_sign`` lets this signer sign now.
@@ -571,6 +717,13 @@ class SignOcaRequestSigner(models.Model):
         self.ensure_one()
         self.request_id._lock_for_sign()
         self._check_can_sign()
+        # The checks run as the caller; the signature then writes fields that
+        # only the server may write (see ``_get_server_fields``).
+        return self.sudo()._action_sign(
+            items, access_token=access_token, latitude=latitude, longitude=longitude
+        )
+
+    def _action_sign(self, items, access_token=False, latitude=False, longitude=False):
         self.signed_on = fields.Datetime.now()
         # current_hash = self.request_id.current_hash
         signatory_data = self.request_id.signatory_data
