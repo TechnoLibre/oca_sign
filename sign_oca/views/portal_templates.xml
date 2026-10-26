@@ -25,9 +25,17 @@ License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
         name="Portal layout : sign_requests button"
         customize_show="True"
     >
-        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+        <!-- The card sits in a category row, as the cards of the other
+             modules, with a pictogram of their size. -->
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_client_category_enable" t-value="True" />
+        </xpath>
+        <xpath expr="//div[@id='portal_client_category']" position="inside">
             <t t-call="portal.portal_docs_entry">
-                <t t-set="icon" t-value="'/web/static/img/mimetypes/document.svg'" />
+                <t
+                    t-set="icon"
+                    t-value="'/sign_oca/static/src/img/sign_requests.svg'"
+                />
                 <t t-set="title">Signature Requests</t>
                 <t t-set="url" t-value="'/my/sign_requests'" />
                 <t t-set="text">View, or sign documents</t>
