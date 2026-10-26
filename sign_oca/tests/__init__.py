@@ -9,3 +9,4 @@ from . import test_sign_lock
 from . import test_sign_hooks
 from . import test_sign_portal_access
 from . import test_sign_log_actor
+from . import test_sign_portal_token
