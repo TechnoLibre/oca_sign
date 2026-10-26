@@ -4,3 +4,4 @@ from . import test_sign_download
 from . import test_sign_text_markup
 from . import test_sign_hash
 from . import test_sign_log_user_agent
+from . import test_sign_items
