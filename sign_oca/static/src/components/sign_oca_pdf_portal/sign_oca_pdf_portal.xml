@@ -13,7 +13,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-lg-4 mobile-hide">
+                        <div class="col-lg-4 d-none d-md-block">
                             <div
                                 class="o_oca_sign_portal_info justify-content-center"
                                 style="width: 100%; height: 100%"
