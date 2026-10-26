@@ -1,7 +1,6 @@
 # Copyright 2023 Dixmit
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
-import hashlib
 import json
 import logging
 from base64 import b64decode, b64encode
@@ -468,7 +467,7 @@ class SignOcaRequestSigner(models.Model):
         output.write(output_stream)
         output_stream.seek(0)
         signed_pdf = output_stream.read()
-        final_hash = hashlib.sha1(signed_pdf).hexdigest()
+        final_hash = sha256(signed_pdf).hexdigest()
         # TODO: Review that the hash has not been changed...
         self.request_id.write(
             {
