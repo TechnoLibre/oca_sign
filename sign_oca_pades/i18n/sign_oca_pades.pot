@@ -1,0 +1,602 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sign_oca_pades
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 21:00+0000\n"
+"PO-Revision-Date: 2026-10-26 21:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "%(field)s: %(state)s%(timestamp)s%(unknown)s%(altered)s"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ", changed beyond form filling afterwards"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ", timestamped"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ", unknown certificate"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"fw-bold\">Created on:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"fw-bold\">Hash chain:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"fw-bold\">Original document SHA-256:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"fw-bold\">Print date:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"fw-bold\">Signers:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"text-muted\">Hash chain:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"text-muted\">Inalterability hash:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span class=\"text-muted\">Refusal reason:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>-</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid ""
+"<span>Times are in UTC, followed by the local time in parentheses. Time "
+"zone:</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>approved without signature,</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>not decided</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>pending</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>refused,</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>signed,</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "<span>signers →</span>"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid "A seal of this document is broken: the signed content was altered."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid ""
+"A seal of this document was made by a certificate that did not seal its "
+"signatures."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Action"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Activity Logs"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_seals_intact
+msgid "All Seals Intact"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Approved without signature"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "BROKEN"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Back office"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Channel"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model,name:sign_oca_pades.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model,name:sign_oca_pades.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Date"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Decision"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid "Document Sealing (PAdES)"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "Document stamped"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid ""
+"Each signature and the final document are sealed with this PKCS#12 "
+"certificate. Without certificate, documents are not sealed."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Email"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_final_sha256
+msgid "Final SHA-256"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Geolocation"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "IP address"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields.selection,name:sign_oca_pades.selection__sign_oca_request__pades_status__modified
+msgid "Modified after the last seal"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_sign_oca_request_signer__pades_field_name
+msgid ""
+"Name of the PDF signature field this signer's seal signs, set when the "
+"document is prepared as a form."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.certificate_datetime
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Not available"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Not decided"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields.selection,name:sign_oca_pades.selection__sign_oca_request__pades_status__none
+msgid "Not sealed"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_original_sha256
+msgid "Original SHA-256"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_res_company__sign_oca_pades_pkcs12
+#: model:ir.model.fields,help:sign_oca_pades.field_res_config_settings__sign_oca_pades_pkcs12
+msgid ""
+"PKCS#12 file (.p12 or .pfx) holding the key and certificate used to seal "
+"signed documents. The odoo.conf key sign_oca_pades_pkcs12_path takes "
+"precedence over it."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Partner"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Pending"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Portal"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid ""
+"RFC 3161 timestamp authority URL; each seal then carries a trusted "
+"timestamp."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_res_company__sign_oca_pades_tsa_url
+#: model:ir.model.fields,help:sign_oca_pades.field_res_config_settings__sign_oca_pades_tsa_url
+msgid ""
+"RFC 3161 timestamp authority that timestamps each seal. Leave empty to seal "
+"without timestamp."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Refused"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "Reserved for the signature certificate."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Role"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_sign_oca_request__pades_certificate_sha256
+msgid ""
+"SHA-256 of each certificate that sealed this document, comma separated; a "
+"seal made by any other certificate is reported."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_sign_oca_request__pades_original_sha256
+msgid "SHA-256 of the document before the first signature."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_sign_oca_request__pades_final_sha256
+msgid ""
+"SHA-256 of the document once every signer has signed, certificate page and "
+"final seal included."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_check_details
+msgid "Seal Details"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_status
+msgid "Seal Status"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields.selection,name:sign_oca_pades.selection__sign_oca_request__pades_status__broken
+msgid "Seal broken"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields.selection,name:sign_oca_pades.selection__sign_oca_request__pades_status__sealed
+msgid "Sealed"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields.selection,name:sign_oca_pades.selection__sign_oca_request__pades_status__untrusted
+msgid "Sealed by an unknown certificate"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid "Sealing Certificate"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_company__sign_oca_pades_pkcs12
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_config_settings__sign_oca_pades_pkcs12
+msgid "Sealing Certificate (PKCS#12)"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_company__sign_oca_pades_pkcs12_filename
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_config_settings__sign_oca_pades_pkcs12_filename
+msgid "Sealing Certificate File Name"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_company__sign_oca_pades_pkcs12_password
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_config_settings__sign_oca_pades_pkcs12_password
+msgid "Sealing Certificate Password"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_certificate_sha256
+msgid "Sealing Certificates"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_seal_count
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid "Seals"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request__pades_last_check
+msgid "Seals Last Checked"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Server"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_config_settings__sign_oca_pades_server_certificate
+msgid "Server Sealing Certificate"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model,name:sign_oca_pades.model_sign_oca_request
+msgid "Sign Request"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model,name:sign_oca_pades.model_sign_oca_request_signer
+msgid "Sign Request Value"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model,name:sign_oca_pades.model_sign_oca_pades_certificate
+msgid "Signature Certificate Values"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_sign_oca_request_signer__pades_field_name
+msgid "Signature Field"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "Signature certificate"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "Signature certificate and final seal"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Signatures"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/certificate.py:0
+msgid "Signed"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "Signed by %(name)s as %(role)s"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Signer"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Status"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "The document cannot be read: %s"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "The document differs from the one completed by the last signature."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid "The document was changed after its last seal."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ""
+"The sealing certificate cannot be loaded; check the PKCS#12 file and its "
+"password."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "The sealing certificate file holds no private key and certificate."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ""
+"The sealing certificate named in the server configuration cannot be read: %s"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,help:sign_oca_pades.field_res_config_settings__sign_oca_pades_server_certificate
+msgid ""
+"The server configuration file names a sealing certificate, which replaces "
+"the one of the company."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid ""
+"The server configuration file names a sealing certificate: it replaces the "
+"one below."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid ""
+"The timestamp authority did not answer: the seal %s was applied without "
+"timestamp."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid ""
+"This document is not sealed: no sealing certificate was configured when it "
+"was signed."
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "This page is intentionally left blank."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "Times are in UTC."
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid "Timestamp Authority"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_company__sign_oca_pades_tsa_url
+#: model:ir.model.fields,field_description:sign_oca_pades.field_res_config_settings__sign_oca_pades_tsa_url
+msgid "Timestamp Authority URL"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "User agent"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.sign_oca_request_form_view
+msgid "Verify Seals"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "altered"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.res_config_settings_view_form
+msgid "https://tsa.example.com"
+msgstr ""
+
+#. module: sign_oca_pades
+#. odoo-python
+#: code:addons/sign_oca_pades/models/sign_oca_request.py:0
+msgid "intact"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "no signature yet"
+msgstr ""
+
+#. module: sign_oca_pades
+#: model_terms:ir.ui.view,arch_db:sign_oca_pades.report_signature_certificate_doc
+msgid "verified"
+msgstr ""

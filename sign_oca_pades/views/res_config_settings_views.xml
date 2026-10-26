@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form (in sign_oca_pades)</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sign_oca.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='sign_oca_requests']" position="after">
+                <block
+                    id="sign_oca_pades"
+                    title="Document Sealing (PAdES)"
+                    groups="base.group_system"
+                >
+                    <setting
+                        id="sign_oca_pades_certificate"
+                        string="Sealing Certificate"
+                        help="Each signature and the final document are sealed with this PKCS#12 certificate. Without certificate, documents are not sealed."
+                    >
+                        <div
+                            class="text-warning"
+                            invisible="not sign_oca_pades_server_certificate"
+                        >
+                            The server configuration file names a sealing certificate: it replaces the one below.
+                        </div>
+                        <div class="row mt8">
+                            <label
+                                for="sign_oca_pades_pkcs12"
+                                class="col-lg-4 o_light_label"
+                            />
+                            <field
+                                name="sign_oca_pades_pkcs12"
+                                filename="sign_oca_pades_pkcs12_filename"
+                            />
+                            <field
+                                name="sign_oca_pades_pkcs12_filename"
+                                invisible="1"
+                            />
+                            <!-- Holds the file name shown by the binary widget above. -->
+                        </div>
+                        <div class="row">
+                            <label
+                                for="sign_oca_pades_pkcs12_password"
+                                class="col-lg-4 o_light_label"
+                            />
+                            <field
+                                name="sign_oca_pades_pkcs12_password"
+                                password="True"
+                            />
+                        </div>
+                    </setting>
+                    <setting
+                        id="sign_oca_pades_tsa"
+                        string="Timestamp Authority"
+                        help="RFC 3161 timestamp authority URL; each seal then carries a trusted timestamp."
+                    >
+                        <field
+                            name="sign_oca_pades_tsa_url"
+                            placeholder="https://tsa.example.com"
+                        />
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>
