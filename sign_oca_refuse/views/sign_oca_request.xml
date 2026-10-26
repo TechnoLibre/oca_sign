@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="sign_oca_request_form_view">
+        <field name="name">sign.oca.request.form (in sign_oca_refuse)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_form_view" />
+        <field name="arch" type="xml">
+            <button name="preview" position="attributes">
+                <attribute
+                    name="invisible"
+                >state not in ['0_sent', '2_signed', '4_refused']</attribute>
+            </button>
+            <field name="active" position="after">
+                <widget
+                    name="web_ribbon"
+                    bg_color="bg-danger"
+                    title="Refused"
+                    invisible="state != '4_refused'"
+                />
+            </field>
+            <xpath
+                expr="//field[@name='signer_ids']/list/field[@name='signed_on']"
+                position="after"
+            >
+                <field name="refused_on" optional="show" />
+                <field name="refuse_reason" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_search_view">
+        <field name="name">sign.oca.request.search (in sign_oca_refuse)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_search_view" />
+        <field name="arch" type="xml">
+            <filter name="canceled" position="before">
+                <filter
+                    name="refused"
+                    string="Refused"
+                    domain="[('state', '=', '4_refused')]"
+                />
+            </filter>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_signer_tree_view">
+        <field name="name">sign.oca.request.signer.list (in sign_oca_refuse)</field>
+        <field name="model">sign.oca.request.signer</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_signer_tree_view" />
+        <field name="arch" type="xml">
+            <field name="signed_on" position="after">
+                <field name="refused_on" optional="show" />
+            </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_signer_form_view">
+        <field name="name">sign.oca.request.signer.form (in sign_oca_refuse)</field>
+        <field name="model">sign.oca.request.signer</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_signer_form_view" />
+        <field name="arch" type="xml">
+            <field name="signed_on" position="after">
+                <field name="refused_on" invisible="not refused_on" />
+                <field name="refuse_reason" invisible="not refused_on" />
+            </field>
+        </field>
+    </record>
+</odoo>

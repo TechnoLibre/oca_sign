@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<templates xml:space="preserve">
+    <t t-name="sign_oca_refuse.SignOcaRefuseDialog">
+        <Dialog title="title" size="'md'">
+            <div class="o_sign_oca_refuse_dialog">
+                <label for="o_sign_oca_refuse_reason" class="form-label">
+                    Why do you refuse to sign this document?
+                </label>
+                <textarea
+                    id="o_sign_oca_refuse_reason"
+                    class="form-control o_sign_oca_refuse_reason"
+                    rows="4"
+                    maxlength="2000"
+                    required="required"
+                    t-model="state.reason"
+                />
+            </div>
+            <t t-set-slot="footer">
+                <button
+                    class="btn btn-danger o_sign_oca_refuse_confirm"
+                    t-att-disabled="!canConfirm"
+                    t-on-click="onConfirm"
+                >Refuse</button>
+                <button
+                    class="btn btn-secondary o_sign_oca_refuse_cancel"
+                    t-on-click="props.close"
+                >Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

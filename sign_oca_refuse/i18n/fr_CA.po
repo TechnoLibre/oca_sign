@@ -1,0 +1,139 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sign_oca_refuse
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 15:40+0000\n"
+"PO-Revision-Date: 2026-10-26 15:40+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: sign_oca_refuse
+#. odoo-python
+#: code:addons/sign_oca_refuse/models/sign_oca_request.py:0
+msgid "%(partner)s refused to sign the document."
+msgstr "%(partner)s a refusé de signer le document."
+
+#. module: sign_oca_refuse
+#. odoo-python
+#: code:addons/sign_oca_refuse/models/sign_oca_request.py:0
+msgid "A reason is required to refuse."
+msgstr "Une raison est obligatoire pour refuser."
+
+#. module: sign_oca_refuse
+#: model:ir.model.fields,field_description:sign_oca_refuse.field_sign_oca_request_log__action
+msgid "Action"
+msgstr "Action"
+
+#. module: sign_oca_refuse
+#. odoo-javascript
+#: code:addons/sign_oca_refuse/static/src/components/sign_oca_refuse_dialog/sign_oca_refuse_dialog.xml:0
+msgid "Cancel"
+msgstr "Annuler"
+
+#. module: sign_oca_refuse
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.portal_sign_document_refused
+msgid "Document refused"
+msgstr "Document refusé"
+
+#. module: sign_oca_refuse
+#: model:ir.model,name:sign_oca_refuse.model_sign_oca_request_log
+msgid "Log access and edition on requests"
+msgstr "Journal des accès et des modifications des demandes"
+
+#. module: sign_oca_refuse
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.portal_sign_document_refused
+msgid "Logo"
+msgstr "Logo"
+
+#. module: sign_oca_refuse
+#. odoo-javascript
+#: code:addons/sign_oca_refuse/static/src/components/sign_oca_pdf_portal/sign_oca_pdf_portal.xml:0
+#: code:addons/sign_oca_refuse/static/src/components/sign_oca_refuse_dialog/sign_oca_refuse_dialog.xml:0
+#: model:ir.model.fields.selection,name:sign_oca_refuse.selection__sign_oca_request_log__action__refuse
+msgid "Refuse"
+msgstr "Refuser"
+
+#. module: sign_oca_refuse
+#: model:ir.model.fields,field_description:sign_oca_refuse.field_sign_oca_request_signer__refuse_reason
+msgid "Refuse Reason"
+msgstr "Raison du refus"
+
+#. module: sign_oca_refuse
+#. odoo-javascript
+#: code:addons/sign_oca_refuse/static/src/components/sign_oca_refuse_dialog/sign_oca_refuse_dialog.esm.js:0
+msgid "Refuse to sign"
+msgstr "Refuser de signer"
+
+#. module: sign_oca_refuse
+#. odoo-python
+#: code:addons/sign_oca_refuse/controllers/main.py:0
+#: model:ir.model.fields.selection,name:sign_oca_refuse.selection__sign_oca_request__state__4_refused
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.sign_oca_request_form_view
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.sign_oca_request_search_view
+msgid "Refused"
+msgstr "Refusé"
+
+#. module: sign_oca_refuse
+#: model:ir.model.fields,field_description:sign_oca_refuse.field_sign_oca_request_signer__refused_on
+msgid "Refused On"
+msgstr "Refusé le"
+
+#. module: sign_oca_refuse
+#: model:ir.model,name:sign_oca_refuse.model_sign_oca_request
+msgid "Sign Request"
+msgstr "Demande de signature"
+
+#. module: sign_oca_refuse
+#: model:ir.model,name:sign_oca_refuse.model_sign_oca_request_signer
+msgid "Sign Request Value"
+msgstr "Signataire de la demande"
+
+#. module: sign_oca_refuse
+#: model:ir.model.fields,field_description:sign_oca_refuse.field_sign_oca_request__state
+msgid "State"
+msgstr "État"
+
+#. module: sign_oca_refuse
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.portal_sign_document_signed
+msgid "The document has been refused by another signer"
+msgstr "Le document a été refusé par un autre signataire"
+
+#. module: sign_oca_refuse
+#. odoo-python
+#: code:addons/sign_oca_refuse/models/sign_oca_request.py:0
+msgid "The reason is longer than %(max)s characters."
+msgstr "La raison dépasse %(max)s caractères."
+
+#. module: sign_oca_refuse
+#. odoo-python
+#: code:addons/sign_oca_refuse/models/sign_oca_request.py:0
+msgid "This document has been refused and cannot be signed."
+msgstr "Ce document a été refusé et ne peut plus être signé."
+
+#. module: sign_oca_refuse
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.portal_sign_document_refused
+msgid ""
+"This document has been refused by another signer and can no longer be "
+"signed."
+msgstr ""
+"Ce document a été refusé par un autre signataire et ne peut plus être signé."
+
+#. module: sign_oca_refuse
+#. odoo-javascript
+#: code:addons/sign_oca_refuse/static/src/components/sign_oca_refuse_dialog/sign_oca_refuse_dialog.xml:0
+msgid "Why do you refuse to sign this document?"
+msgstr "Pourquoi refusez-vous de signer ce document ?"
+
+#. module: sign_oca_refuse
+#: model_terms:ir.ui.view,arch_db:sign_oca_refuse.portal_sign_document_refused
+msgid "You refused to sign this document."
+msgstr "Vous avez refusé de signer ce document."

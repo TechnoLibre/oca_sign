@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<templates xml:space="preserve">
+    <t
+        t-name="sign_oca_refuse.SignOcaPdfPortal"
+        t-inherit="sign_oca.SignOcaPdfPortal"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//header/div/div/div[3]" position="inside">
+            <div
+                t-if="info.can_refuse"
+                class="d-flex justify-content-end align-items-center h-100"
+            >
+                <button
+                    type="button"
+                    class="btn btn-outline-danger o_sign_oca_refuse_button"
+                    t-on-click="() => this._onClickRefuse()"
+                >Refuse</button>
+            </div>
+        </xpath>
+    </t>
+</templates>
