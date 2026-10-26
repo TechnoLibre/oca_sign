@@ -301,6 +301,28 @@ class SignOcaRequest(models.Model):
                 attachment_ids=attachments.ids,
             )
 
+    def _lock_for_sign(self):
+        """Lock the rows of these requests until the transaction ends.
+
+        ``action_sign`` reads ``data`` and ``signatory_data`` and writes them
+        back, so two signatures running at once would each drop the items of
+        the other. The second transaction to lock fails with
+        ``LockNotAvailable`` (or ``SerializationFailure`` when the first one
+        has already committed); Odoo retries the HTTP request, which then
+        reads the committed document. Cached values of the requests and of
+        their signers are dropped, so the checks that follow read the
+        database.
+        """
+        if not self.ids:
+            return
+        self.flush_recordset()
+        self.env.cr.execute(
+            "SELECT id FROM sign_oca_request WHERE id IN %s FOR UPDATE NOWAIT",
+            [tuple(self.ids)],
+        )
+        self.invalidate_recordset()
+        self.signer_ids.invalidate_recordset()
+
     def _check_signed(self):
         self.ensure_one()
         if self.state != "0_sent":
@@ -445,7 +467,15 @@ class SignOcaRequestSigner(models.Model):
             "url": self.access_url,
         }
 
-    def action_sign(self, items, access_token=False, latitude=False, longitude=False):
+    def _check_can_sign(self):
+        """Raise when this signer may not sign now.
+
+        By default the signer must not have signed yet and the request must
+        be sent (``0_sent``). Overrides call ``super()`` and add their own
+        conditions.
+
+        :raise ValidationError: with the reason, shown to the signer
+        """
         self.ensure_one()
         if self.signed_on:
             raise ValidationError(
@@ -454,6 +484,11 @@ class SignOcaRequestSigner(models.Model):
             )
         if self.request_id.state != "0_sent":
             raise ValidationError(self.env._("Request cannot be signed"))
+
+    def action_sign(self, items, access_token=False, latitude=False, longitude=False):
+        self.ensure_one()
+        self.request_id._lock_for_sign()
+        self._check_can_sign()
         self.signed_on = fields.Datetime.now()
         # current_hash = self.request_id.current_hash
         signatory_data = self.request_id.signatory_data
