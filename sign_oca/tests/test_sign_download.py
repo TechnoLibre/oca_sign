@@ -77,3 +77,10 @@ class TestSignDownload(HttpCase):
         self.authenticate("admin", "admin")
         response = self.url_open(self.url, allow_redirects=False)
         self.assertEqual(response.status_code, 200)
+
+    def test_download_named_by_filename(self):
+        self.request.sudo().filename = "Sample document - 0042.pdf"
+        self.authenticate("sign_download_signer", "sign_download_signer")
+        response = self.url_open(self.url, allow_redirects=False)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("0042.pdf", response.headers["Content-Disposition"])

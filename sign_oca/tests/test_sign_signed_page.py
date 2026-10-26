@@ -80,3 +80,10 @@ class TestSignSignedPage(HttpCase):
         response = self.url_open(self.signer.access_url)
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(self.download_url, response.text)
+
+    def test_cancelled_request_not_downloaded(self):
+        """A cancelled request no longer serves its document to the links
+        handed out before its cancellation."""
+        self.request.sudo().state = "3_cancel"
+        response = self.url_open(self.download_url, allow_redirects=False)
+        self.assertEqual(response.status_code, 404)
