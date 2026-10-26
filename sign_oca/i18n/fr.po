@@ -1210,7 +1210,7 @@ msgstr "Envoyé"
 #. odoo-python
 #: code:addons/sign_oca/controllers/main.py:0
 msgid "Sent to Signed"
-msgstr "Envoyées puis signées"
+msgstr "Envoyés puis signés"
 
 #. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__sequence_id
@@ -1407,7 +1407,7 @@ msgstr "Signé le"
 #. odoo-python
 #: code:addons/sign_oca/controllers/main.py:0
 msgid "Signed to Sent"
-msgstr "Signées puis envoyées"
+msgstr "Signés puis envoyés"
 
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.report_signature_certificate_doc
