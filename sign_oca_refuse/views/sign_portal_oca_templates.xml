@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <template id="portal_sign_document_refused">
+        <t t-call="web.layout">
+            <t
+                t-set="html_data"
+                t-value="{'lang': (request.env.lang or 'en_US').replace('_', '-')}"
+            />
+            <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <t t-call-assets="oca_sign.assets_frontend_sign" t-js="false" />
+            </t>
+
+            <div class="container">
+                <div class="o_logo">
+                    <img
+                        t-attf-src="/web/binary/company_logo?company={{ company.id }}"
+                        alt="Logo"
+                    />
+                </div>
+
+                <div class="card o_sign_oca_refused">
+                    <div class="card-header">
+                        <h2>Document refused</h2>
+                        <h4 t-out="signer.request_id.name" />
+                    </div>
+                    <div class="card-body">
+                        <t t-if="signer.refused_on">
+                            <p>You refused to sign this document.</p>
+                            <p
+                                class="o_sign_oca_refuse_reason"
+                                t-field="signer.refuse_reason"
+                            />
+                        </t>
+                        <t t-else="">
+                            <p>
+                                This document has been refused by another signer and can no longer be signed.
+                            </p>
+                        </t>
+                        <t t-call="sign_oca.portal_sign_document_links" />
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <template
+        id="portal_sign_document_signed"
+        inherit_id="sign_oca.portal_sign_document_signed"
+    >
+        <xpath
+            expr="//t[@t-elif=&quot;signer.request_id.state == '3_cancel'&quot;]"
+            position="after"
+        >
+            <t t-elif="signer.request_id.state == '4_refused'">
+                The document has been refused by another signer
+            </t>
+        </xpath>
+    </template>
+</odoo>
