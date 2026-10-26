@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="sign_oca_request_form_view">
+        <field name="name">sign.oca.request.form (in sign_oca_login)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_form_view" />
+        <field name="arch" type="xml">
+            <field name="record_ref" position="after">
+                <field name="require_login" readonly="state != '1_draft'" />
+            </field>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="sign_oca_request_search_view">
+        <field name="name">sign.oca.request.search (in sign_oca_login)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_search_view" />
+        <field name="arch" type="xml">
+            <filter name="sent" position="before">
+                <filter
+                    name="require_login"
+                    string="Login required"
+                    domain="[('require_login', '=', True)]"
+                />
+                <separator />
+            </filter>
+        </field>
+    </record>
+</odoo>

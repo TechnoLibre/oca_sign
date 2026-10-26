@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="sign_oca_template_form_view">
+        <field name="name">sign.oca.template.form (in sign_oca_login)</field>
+        <field name="model">sign.oca.template</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_template_form_view" />
+        <field name="arch" type="xml">
+            <field name="ask_location" position="after">
+                <field name="require_login" />
+            </field>
+        </field>
+    </record>
+</odoo>
