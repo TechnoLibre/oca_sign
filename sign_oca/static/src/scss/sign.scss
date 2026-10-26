@@ -17,6 +17,15 @@
         background-color: transparent;
     }
 }
+// On a touch screen, the box of a signature to give also answers a tap a
+// few pixels around it: a box scaled down with its page stays tappable.
+@media (pointer: coarse) {
+    .o_sign_oca_field_tap::after {
+        content: "";
+        position: absolute;
+        inset: -10px;
+    }
+}
 .o_sign_oca_field_config {
     position: absolute;
     top: 0;
