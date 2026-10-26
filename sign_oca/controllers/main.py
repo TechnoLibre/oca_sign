@@ -126,6 +126,22 @@ class PortalSign(CustomerPortal):
         return signer_sudo.get_info(access_token=access_token)
 
     @http.route(
+        ["/sign_oca/download/<int:signer_id>/<string:access_token>"],
+        type="http",
+        auth="public",
+        website=True,
+    )
+    def get_sign_oca_download_access(self, signer_id, access_token):
+        """Send the current document of the signer's request as a PDF
+        download, to whoever ``_sign_oca_check_access`` lets open the
+        signer's page: the page already shows that document."""
+        try:
+            signer_sudo = self._sign_oca_check_access(signer_id, access_token)
+        except (AccessError, MissingError) as error:
+            return self._sign_oca_access_error_response(signer_id, access_token, error)
+        return self._sign_oca_download_response(signer_sudo.request_id)
+
+    @http.route(
         ["/sign_oca/sign/<int:signer_id>/<string:access_token>"],
         type="json",
         auth="public",
@@ -264,6 +280,16 @@ class PortalSign(CustomerPortal):
         sign_request = request.env["sign.oca.request"].sudo().browse(request_id)
         if not sign_request.exists() or not self._sign_oca_can_download(sign_request):
             return request.not_found()
+        return self._sign_oca_download_response(sign_request)
+
+    def _sign_oca_download_response(self, sign_request):
+        """Return the current document of ``sign_request`` as a PDF
+        attachment named after the request, or a 404 without a document.
+
+        The caller has checked the access; ``sign_request`` is read as
+        superuser.
+        """
+        sign_request = sign_request.sudo()
         if not sign_request.data:
             return request.not_found()
         filename = sign_request.name or "document.pdf"

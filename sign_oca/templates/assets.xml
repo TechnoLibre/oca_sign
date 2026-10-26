@@ -31,6 +31,7 @@
     <template id="portal_sign_document_signed">
         <t t-call="web.layout">
             <t t-set="head">
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
                 <t t-call-assets="oca_sign.assets_frontend_sign" t-js="false" />
             </t>
 
@@ -60,10 +61,39 @@
                         <t t-else="">
                             As soon as all signers have signed the document, you will receive an email with the full document
                         </t>
+                        <t t-call="sign_oca.portal_sign_document_links" />
                     </div>
                 </div>
             </div>
         </t>
+    </template>
+    <!-- Links to the document of the request of ``signer``, as it stands,
+         through the signer's own routes: shown once the signer has signed,
+         and not on a cancelled request. -->
+    <template id="portal_sign_document_links">
+        <div
+            t-if="signer.request_id.state != '3_cancel'"
+            class="o_sign_oca_document_links d-flex flex-wrap gap-2 mt-3"
+        >
+            <a
+                class="btn btn-primary"
+                t-attf-href="/sign_oca/download/#{signer.id}/#{signer.access_token}"
+            >
+                <i class="fa fa-download me-1" role="img" aria-hidden="true" />
+                <t t-if="signer.request_id.state == '2_signed'">
+                    Download the signed document
+                </t>
+                <t t-else="">Download the document</t>
+            </a>
+            <a
+                class="btn btn-secondary"
+                target="_blank"
+                t-attf-href="/sign_oca/content/#{signer.id}/#{signer.access_token}"
+            >
+                <i class="fa fa-eye me-1" role="img" aria-hidden="true" />
+                View the document
+            </a>
+        </div>
     </template>
     <template t-name="sign_oca_template_mail">
         <div>

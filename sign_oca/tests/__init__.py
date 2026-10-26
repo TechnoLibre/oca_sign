@@ -15,3 +15,4 @@ from . import test_sign_server_fields
 from . import test_sign_item_values
 from . import test_sign_text_clip
 from . import test_sign_portal_page
+from . import test_sign_signed_page
