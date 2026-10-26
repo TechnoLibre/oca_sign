@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <template
+        id="portal_my_home"
+        inherit_id="sign_oca.portal_my_home"
+        name="Portal layout : sign_requests button always shown"
+    >
+        <xpath
+            expr="//t[@t-set='placeholder_count'][@t-value=&quot;'sign_oca_count'&quot;]"
+            position="after"
+        >
+            <!-- Shown even without any request: the list also keeps the
+                 documents already signed. -->
+            <t t-set="config_card" t-value="True" />
+        </xpath>
+    </template>
+
+    <template
+        id="sign_requests"
+        inherit_id="sign_oca.sign_requests"
+        name="Sign Requests List: groups, sender and dates"
+    >
+        <!-- One block per group: a header line with the group label and its
+             count, then the lines of the group. -->
+        <xpath expr="//t[@t-as='sign_request']" position="replace">
+            <t t-foreach="grouped_sign_requests" t-as="group">
+                <tr t-if="group[0]" class="table-light o_sign_oca_portal_group">
+                    <th colspan="6">
+                        <span t-out="group[0]" />
+                        <span
+                            class="badge rounded-pill text-bg-secondary ms-1"
+                            t-out="len(group[1])"
+                        />
+                    </th>
+                </tr>
+                <t>$0</t>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-as='sign_request']" position="attributes">
+            <attribute name="t-foreach">group[1]</attribute>
+        </xpath>
+
+        <!-- The signature date of sign_oca (its second column) shows from the
+             md breakpoint, like the sent date. -->
+        <xpath expr="//thead/tr/th[2]" position="attributes">
+            <attribute name="class" add="d-none d-md-table-cell" separator=" " />
+        </xpath>
+        <!-- The first column names the document, on every screen. -->
+        <xpath expr="//thead/tr/th[1]" position="replace">
+            <th>Document</th>
+        </xpath>
+        <!-- Narrow screens keep the document and its state; the other
+             columns show from the md (dates) or lg (record, sender)
+             breakpoint, and a line under the document repeats what they
+             hide. -->
+        <xpath expr="//thead/tr/th[1]" position="after">
+            <th class="text-start d-none d-lg-table-cell">Related Record</th>
+            <th class="text-start d-none d-lg-table-cell">Sent by</th>
+            <th class="text-start d-none d-md-table-cell">Sent on</th>
+        </xpath>
+        <!-- The related record is shown only when its name differs from the
+             document's: a request is often named after its record. -->
+        <xpath expr="//t[@t-as='sign_request']/tr/td[1]" position="before">
+            <t
+                t-set="record_name"
+                t-value="sign_request_record_names.get(sign_request.id)"
+            />
+            <t
+                t-set="record_name"
+                t-value="record_name if record_name != sign_request.request_id.name else False"
+            />
+        </xpath>
+        <xpath expr="//t[@t-as='sign_request']/tr/td[1]" position="inside">
+            <div class="d-lg-none small text-muted text-wrap o_sign_oca_portal_details">
+                <div t-if="record_name" t-out="record_name" />
+                <div class="d-md-none">
+                    <span
+                        t-field="sign_request.create_date"
+                        t-options="{'widget': 'datetime', 'format': 'yyyy-MM-dd HH:mm'}"
+                    />
+                    <t t-if="sign_request.request_id.user_id">
+                        · <t t-out="sign_request.request_id.user_id.name" />
+                    </t>
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//t[@t-as='sign_request']/tr/td[1]" position="after">
+            <td class="text-start d-none d-lg-table-cell">
+                <t t-out="record_name" />
+            </td>
+            <td class="text-start d-none d-lg-table-cell">
+                <t t-out="sign_request.request_id.user_id.name" />
+            </td>
+            <td class="text-start text-nowrap d-none d-md-table-cell">
+                <span
+                    t-field="sign_request.create_date"
+                    t-options="{'widget': 'datetime', 'format': 'yyyy-MM-dd HH:mm:ss'}"
+                />
+            </td>
+        </xpath>
+        <xpath
+            expr="//span[@t-field='sign_request.signed_on']/.."
+            position="attributes"
+        >
+            <attribute
+                name="class"
+                add="text-nowrap d-none d-md-table-cell"
+                separator=" "
+            />
+        </xpath>
+        <xpath expr="//span[@t-field='sign_request.signed_on']" position="attributes">
+            <attribute
+                name="t-options"
+            >{'widget': 'datetime', 'format': 'yyyy-MM-dd HH:mm:ss'}</attribute>
+        </xpath>
+    </template>
+</odoo>
