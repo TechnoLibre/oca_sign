@@ -457,6 +457,8 @@ class SignOcaRequestSigner(models.Model):
         self.signed_on = fields.Datetime.now()
         # current_hash = self.request_id.current_hash
         signatory_data = self.request_id.signatory_data
+        role_items = self._prepare_sign_items(items)
+        signatory_data.update(role_items)
 
         input_data = BytesIO(b64decode(self.request_id.data))
         reader = PdfFileReader(input_data)
@@ -465,16 +467,13 @@ class SignOcaRequestSigner(models.Model):
         for page_number in range(1, reader.numPages + 1):
             pages[page_number] = reader.getPage(page_number - 1)
 
-        for key in signatory_data:
-            if signatory_data[key]["role_id"] == self.role_id.id:
-                signatory_data[key] = items[key]
-                self._check_signable(items[key])
-                item = items[key]
-                page = pages[item["page"]]
-                new_page = self._get_pdf_page(item, page.mediaBox)
-                if new_page:
-                    page.mergePage(new_page)
-                pages[item["page"]] = page
+        for item in role_items.values():
+            self._check_signable(item)
+            page = pages[item["page"]]
+            new_page = self._get_pdf_page(item, page.mediaBox)
+            if new_page:
+                page.mergePage(new_page)
+            pages[item["page"]] = page
         for page_number in pages:
             output.addPage(pages[page_number])
         output_stream = BytesIO()
@@ -509,6 +508,36 @@ class SignOcaRequestSigner(models.Model):
             "type": "ir.actions.act_url",
             "url": self.access_url,
         }
+
+    def _prepare_sign_items(self, items):
+        """Return the items this signer fills, ready to store and draw.
+
+        Each item of the signer's role keeps the definition stored on the
+        request (position, page, size, field type, required flag, role,
+        name); only its ``value`` comes from ``items``. Items of other roles
+        in ``items`` are ignored, and an item missing from ``items`` gets no
+        value.
+
+        :param dict items: the items sent by the browser, keyed by item id
+        :return: dict ``{key: item}`` keyed like ``request.signatory_data``
+        :raise ValidationError: when a value is not a string, number or bool
+
+        Override to set a value computed by the server, after ``super()``.
+        ``action_sign`` calls it once ``signed_on`` is set.
+        """
+        self.ensure_one()
+        role_items = {}
+        for key, definition in self.request_id.signatory_data.items():
+            if definition["role_id"] != self.role_id.id:
+                continue
+            sent = items.get(str(key)) or items.get(key) or {}
+            value = sent.get("value", False) if isinstance(sent, dict) else False
+            if value is not None and not isinstance(value, str | int | float | bool):
+                raise ValidationError(
+                    self.env._("Field %s has an invalid value") % definition["name"]
+                )
+            role_items[key] = dict(definition, value=value)
+        return role_items
 
     def _check_signable(self, item):
         if not item["required"]:
