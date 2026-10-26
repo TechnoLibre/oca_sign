@@ -1,0 +1,637 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils: https://docutils.sourceforge.io/" />
+<title>Sign Oca Tier Validation</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 9511 2024-01-13 09:50:07Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+Despite the name, some widely supported CSS2 features are used.
+
+See https://docutils.sourceforge.io/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+.subscript {
+  vertical-align: sub;
+  font-size: smaller }
+
+.superscript {
+  vertical-align: super;
+  font-size: smaller }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left, table.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right, table.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.align-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+.align-top    {
+  vertical-align: top }
+
+.align-middle {
+  vertical-align: middle }
+
+.align-bottom {
+  vertical-align: bottom }
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: gray; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic, pre.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="sign-oca-tier-validation">
+<h1 class="title">Sign Oca Tier Validation</h1>
+
+<!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! This file is generated by oca-gen-addon-readme !!
+!! changes will be overwritten.                   !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! source digest: sha256:d30f14e0e6ad777b46f4b8e9ec0120699474e8b157f14c2cd42e4bfc08477eeb
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+<p><a class="reference external image-reference" href="https://odoo-community.org/page/development-status"><img alt="Alpha" src="https://img.shields.io/badge/maturity-Alpha-red.png" /></a> <a class="reference external image-reference" href="http://www.gnu.org/licenses/agpl-3.0-standalone.html"><img alt="License: AGPL-3" src="https://img.shields.io/badge/licence-AGPL--3-blue.png" /></a> <a class="reference external image-reference" href="https://github.com/OCA/sign/tree/18.0/sign_oca_tier_validation"><img alt="OCA/sign" src="https://img.shields.io/badge/github-OCA%2Fsign-lightgray.png?logo=github" /></a> <a class="reference external image-reference" href="https://translation.odoo-community.org/projects/sign-18-0/sign-18-0-sign_oca_tier_validation"><img alt="Translate me on Weblate" src="https://img.shields.io/badge/weblate-Translate%20me-F47D42.png" /></a> <a class="reference external image-reference" href="https://runboat.odoo-community.org/builds?repo=OCA/sign&amp;target_branch=18.0"><img alt="Try me on Runboat" src="https://img.shields.io/badge/runboat-Try%20me-875A7B.png" /></a></p>
+<p>This module lets the reviewers of a tier validation
+(<tt class="docutils literal">base_tier_validation</tt>) sign their tiers in a <tt class="docutils literal">sign_oca</tt> document.
+It works with any model that inherits <tt class="docutils literal">tier.validation</tt>.</p>
+<p>Once a validation is requested, the record sends one sign request whose
+document is provided by the model:</p>
+<ul class="simple">
+<li>each tier review is a signer, with the sign role of its tier
+definition (created on the fly the first time);</li>
+<li>any reviewer of the tier may sign it; the first one who signs holds
+the role, and the document shows their name;</li>
+<li>the tiers are signed in the order that <tt class="docutils literal">base_tier_validation</tt>
+enforces (<em>Approve by sequence</em>): a reviewer gets the email inviting
+them to sign when their tier’s turn comes;</li>
+<li>signing approves the tier, refusing (<tt class="docutils literal">sign_oca_refuse</tt>) rejects it,
+exactly as the <em>Validate</em> and <em>Reject</em> buttons of the record do; the
+comment written in the document becomes the comment of the review;
+with <tt class="docutils literal">sign_oca_pades</tt>, a refused document gets its certificate and
+final seal as a completed one does, and the seal of a signature names
+the reviewer as the document does;</li>
+<li>while the document is out for signature, no tier is decided outside
+it: the buttons of the record, the comment wizard and any call made as
+the user are refused; the request is cancelled with its validation
+only, not by a user, its responsible included;</li>
+<li>the request always requires a login (<tt class="docutils literal">sign_oca_login</tt>): the reviewer
+signs as their own user;</li>
+<li>the name, date and status fields of a tier are written by the server,
+so the signed document states who decided, when, and what;</li>
+<li>the signing page shows the steps of the validation next to the
+document, with each tier’s status, the time of its decision and its
+comment.</li>
+</ul>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">This is an alpha version, the data model and design can change at any time without warning.
+Only for development or testing purpose, do not use in production.
+<a class="reference external" href="https://odoo-community.org/page/development-status">More details on development status</a></p>
+</div>
+<p><strong>Table of contents</strong></p>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#configuration" id="toc-entry-1">Configuration</a></li>
+<li><a class="reference internal" href="#usage" id="toc-entry-2">Usage</a><ul>
+<li><a class="reference internal" href="#sign-a-validation" id="toc-entry-3">Sign a validation</a></li>
+<li><a class="reference internal" href="#fields-of-a-tier" id="toc-entry-4">Fields of a tier</a></li>
+<li><a class="reference internal" href="#for-developers" id="toc-entry-5">For developers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#known-issues-roadmap" id="toc-entry-6">Known issues / Roadmap</a></li>
+<li><a class="reference internal" href="#bug-tracker" id="toc-entry-7">Bug Tracker</a></li>
+<li><a class="reference internal" href="#credits" id="toc-entry-8">Credits</a><ul>
+<li><a class="reference internal" href="#authors" id="toc-entry-9">Authors</a></li>
+<li><a class="reference internal" href="#contributors" id="toc-entry-10">Contributors</a></li>
+<li><a class="reference internal" href="#maintainers" id="toc-entry-11">Maintainers</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="configuration">
+<h1><a class="toc-backref" href="#toc-entry-1">Configuration</a></h1>
+<ul class="simple">
+<li>On each tier definition (<em>Settings / Technical / Tier Validations /
+Tier Definition</em>), the <em>Sign Role</em> field gives the role its reviewers
+sign as. It is created with the tier’s name when a first document is
+sent; it can be set beforehand to reuse an existing role.</li>
+<li>A tier whose definition has <em>Comment</em> checked requires the comment
+field of the document to be filled in to sign.</li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h1><a class="toc-backref" href="#toc-entry-2">Usage</a></h1>
+<div class="section" id="sign-a-validation">
+<h2><a class="toc-backref" href="#toc-entry-3">Sign a validation</a></h2>
+<ul class="simple">
+<li>Request the validation of the record as usual.</li>
+<li>Send it for signature: the model calls
+<tt class="docutils literal">record._sign_oca_create_request()</tt> or offers the
+<tt class="docutils literal">action_sign_oca_create_request</tt> button. The <em>Signatures</em> smart
+button of the record opens its sign requests.</li>
+<li>The reviewers of the first tier get an email with the link of the
+document. They log in, fill in their signature (and their comment),
+and validate; or press <strong>Refuse</strong> and give a reason.</li>
+<li>The reviewers of the next tier get their email once the previous tier
+is approved.</li>
+<li>Restarting the validation cancels the open request. While the request
+is open, the <em>Validate</em> and <em>Reject</em> buttons of the record refuse to
+decide: the tiers are decided in the document.</li>
+<li>A tier whose definition has <em>Approve Sequence Bypass</em> is approved
+along with an earlier tier signed by one of its reviewers, as
+<tt class="docutils literal">base_tier_validation</tt> does from the record. It needs no signature:
+the document gets the reviewer’s name, the date and the status
+<em>Approved (same reviewer)</em>, its signature and comment stay empty, and
+the request completes without it.</li>
+<li>Once signed, the page of the signer links to the document, to download
+or view.</li>
+</ul>
+</div>
+<div class="section" id="fields-of-a-tier">
+<h2><a class="toc-backref" href="#toc-entry-4">Fields of a tier</a></h2>
+<p>Each field of a tier’s role has a kind, read from the <tt class="docutils literal">tier_item</tt> key
+of the item in <tt class="docutils literal">signatory_data</tt> or, without it, from its sign field:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="22%" />
+<col width="19%" />
+<col width="59%" />
+</colgroup>
+<thead valign="bottom">
+<tr><th class="head">Kind</th>
+<th class="head">Sign field</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr><td><tt class="docutils literal">signature</tt></td>
+<td><em>Signature</em></td>
+<td>drawn by the reviewer; always required</td>
+</tr>
+<tr><td><tt class="docutils literal">name</tt></td>
+<td><em>Name</em></td>
+<td><tt class="docutils literal">Name (login)</tt> of the user who
+decides, written by the server</td>
+</tr>
+<tr><td><tt class="docutils literal">date</tt></td>
+<td><em>Date</em></td>
+<td>date and time of the decision,
+<tt class="docutils literal"><span class="pre">YYYY-MM-DD</span> HH:MM</tt>, written by the
+server</td>
+</tr>
+<tr><td><tt class="docutils literal">status</tt></td>
+<td><em>Status</em></td>
+<td><em>Approved</em> or <em>Refused</em>, written by
+the server</td>
+</tr>
+<tr><td><tt class="docutils literal">comment</tt></td>
+<td><em>Comment</em></td>
+<td>written by the reviewer, on several
+lines (<em>Multi-line Text</em> field);
+required when the tier asks for a
+comment; the reason on a refusal</td>
+</tr>
+</tbody>
+</table>
+<p>The date and status are <em>Multi-line Text</em> fields too, so that their text
+starts at the top of their box, as the comment does. The date is in the
+time zone kept on the request when it is created: the one of the
+record’s company, else of the user who sends it, else UTC
+(<tt class="docutils literal">tier.validation._sign_oca_tier_get_tz()</tt>). The status is in the
+language of the record’s company, else of the user. The values sent by
+the browser for the name, date and status are ignored, and the signing
+page does not show these fields to fill.</p>
+<p>With <tt class="docutils literal">sign_oca_anchor</tt> installed, the fields are placed from the
+anchors of the document. A tier’s role is named <tt class="docutils literal">tier&lt;n&gt;</tt>, <tt class="docutils literal">n</tt> being
+the tier number of the review (its <em>Tier</em>, 1 for the first tier to
+decide), and the field by its kind:</p>
+<pre class="literal-block">
+[[sig:tier1:signature]] [[sig:tier1:name]] [[sig:tier1:date]]
+[[sig:tier1:status]] [[sig:tier1:comment]]
+</pre>
+</div>
+<div class="section" id="for-developers">
+<h2><a class="toc-backref" href="#toc-entry-5">For developers</a></h2>
+<ul class="simple">
+<li><tt class="docutils literal">tier.validation._sign_oca_get_document()</tt> returns
+<tt class="docutils literal">(pdf_bytes, filename)</tt>, the document to sign. Each model implements
+it.</li>
+<li><tt class="docutils literal">tier.validation._sign_oca_prepare_items(sign_request)</tt> places the
+fields of the draft request; override it to place them by code, with a
+<tt class="docutils literal">tier_item</tt> key on each item. A document that embeds files written
+by others calls <tt class="docutils literal"><span class="pre">sign_request._sign_oca_tier_place_items(pages=...)</span></tt>
+with the pages it prints itself, so that text typed in those files
+places no field.</li>
+<li><tt class="docutils literal">tier.validation._sign_oca_tier_get_tz()</tt> returns the time zone of
+the dates of the document.</li>
+<li><tt class="docutils literal">tier.validation._sign_oca_tier_decided_in_document()</tt> tells whether
+the tiers of a record are decided in a document only (default: while a
+tier request is open); <tt class="docutils literal">_sign_oca_tier_check_backoffice_decision()</tt>
+refuses then any decision taken as the user, which <tt class="docutils literal">validate_tier</tt>,
+<tt class="docutils literal">reject_tier</tt>, <tt class="docutils literal">_validate_tier</tt> and <tt class="docutils literal">_rejected_tier</tt> call. The
+signing page decides as superuser.</li>
+<li><tt class="docutils literal">sign_oca_anchor</tt>’s anchors take a <tt class="docutils literal">k</tt> option:
+<tt class="docutils literal"><span class="pre">_sign_oca_tier_place_items(key=...)</span></tt> places only the anchors
+carrying that key, so that a document printing text written by its
+users draws a key when it is rendered and ignores the anchors typed in
+it.</li>
+<li><tt class="docutils literal"><span class="pre">tier.validation._sign_oca_create_request(message=&quot;&quot;)</span></tt> creates and
+sends the request of the open reviews, or returns the open one.</li>
+<li><tt class="docutils literal">sign.oca.request.signer._sign_oca_tier_item_values(user, decision, moment)</tt>
+returns the values the server writes;
+<tt class="docutils literal">_sign_oca_tier_stamped_name(user)</tt> the name it writes.</li>
+<li><tt class="docutils literal">sign.oca.request._sign_oca_tier_done_signers()</tt> returns the signers
+whose tier is done: signed, or approved by bypass (<tt class="docutils literal">tier_bypassed</tt>).
+<tt class="docutils literal">sign.oca.request.signer._sign_oca_tier_bypass_reviews(user)</tt>
+returns the reviews an approval by <tt class="docutils literal">user</tt> approves too.</li>
+<li>A decision stamped without a signature (a refusal, a tier approved by
+bypass) passes its status and stamped name in the context key
+<tt class="docutils literal">sign_oca_stamp_reason</tt>; with <tt class="docutils literal">sign_oca_pades</tt>, the seal of that
+stamp records it as its reason.</li>
+<li>The steps panel is the QWeb template
+<tt class="docutils literal">sign_oca_tier_validation.tier_steps_panel</tt>. The empty templates
+<tt class="docutils literal">tier_steps_intro</tt> (above the steps) and <tt class="docutils literal">tier_steps_start</tt> (first
+item of the list of steps, for a step 0) are hooks for other modules.
+<tt class="docutils literal">sign.oca.request.signer._sign_oca_tier_status_labels()</tt> gives the
+labels of the steps, and <tt class="docutils literal">_sign_oca_tier_item_placeholders()</tt> the
+placeholders of the empty fields of the signing page, in the language
+of the page.</li>
+<li>The link between a request and a validation (<tt class="docutils literal">is_tier_validation</tt>,
+<tt class="docutils literal">tier_review_ids</tt>, the signers’ <tt class="docutils literal">tier_review_id</tt>) is written as
+superuser only, and a signer signs only the open request of the record
+its review validates.</li>
+<li>Every reviewer of a tier reads its request and signer, and finds it in
+the portal list of their sign requests and in the systray counter.</li>
+<li>A model sets <tt class="docutils literal">_sign_oca_tier_smart_button = False</tt> to keep its form
+view without the <em>Signatures</em> smart button.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="known-issues-roadmap">
+<h1><a class="toc-backref" href="#toc-entry-6">Known issues / Roadmap</a></h1>
+<ul class="simple">
+<li>A tier decided by code running as superuser outside the document
+leaves its signer unsigned: the request stays open. A rejection
+cancels it; an approval does not.</li>
+</ul>
+</div>
+<div class="section" id="bug-tracker">
+<h1><a class="toc-backref" href="#toc-entry-7">Bug Tracker</a></h1>
+<p>Bugs are tracked on <a class="reference external" href="https://github.com/OCA/sign/issues">GitHub Issues</a>.
+In case of trouble, please check there if your issue has already been reported.
+If you spotted it first, help us to smash it by providing a detailed and welcomed
+<a class="reference external" href="https://github.com/OCA/sign/issues/new?body=module:%20sign_oca_tier_validation%0Aversion:%2018.0%0A%0A**Steps%20to%20reproduce**%0A-%20...%0A%0A**Current%20behavior**%0A%0A**Expected%20behavior**">feedback</a>.</p>
+<p>Do not contact contributors directly about support or help with technical issues.</p>
+</div>
+<div class="section" id="credits">
+<h1><a class="toc-backref" href="#toc-entry-8">Credits</a></h1>
+<div class="section" id="authors">
+<h2><a class="toc-backref" href="#toc-entry-9">Authors</a></h2>
+<ul class="simple">
+<li>TechnoLibre</li>
+</ul>
+</div>
+<div class="section" id="contributors">
+<h2><a class="toc-backref" href="#toc-entry-10">Contributors</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://technolibre.ca">TechnoLibre</a>:<ul>
+<li>Mathieu Benoit</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="maintainers">
+<h2><a class="toc-backref" href="#toc-entry-11">Maintainers</a></h2>
+<p>This module is maintained by the OCA.</p>
+<a class="reference external image-reference" href="https://odoo-community.org">
+<img alt="Odoo Community Association" src="https://odoo-community.org/logo.png" />
+</a>
+<p>OCA, or the Odoo Community Association, is a nonprofit organization whose
+mission is to support the collaborative development of Odoo features and
+promote its widespread use.</p>
+<p>This module is part of the <a class="reference external" href="https://github.com/OCA/sign/tree/18.0/sign_oca_tier_validation">OCA/sign</a> project on GitHub.</p>
+<p>You are welcome to contribute. To learn how please visit <a class="reference external" href="https://odoo-community.org/page/Contribute">https://odoo-community.org/page/Contribute</a>.</p>
+</div>
+</div>
+</div>
+</body>
+</html>
