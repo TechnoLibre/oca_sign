@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Hook rendered at the top of the steps panel, before its title: a
+         module adds an introduction to the document here. Same values as
+         tier_steps_panel. -->
+    <template id="tier_steps_intro" name="Signature steps: introduction">
+        <t />
+    </template>
+
+    <!-- Hook rendered inside the list of steps, before the first tier: a
+         module adds a step 0 here, as an <li class="o_sign_oca_tier_step">.
+         Same values as tier_steps_panel. -->
+    <template id="tier_steps_start" name="Signature steps: first step">
+        <t />
+    </template>
+
+    <!-- Steps panel of a tier sign request, next to the document. Values come
+         from sign.oca.request.signer._sign_oca_tier_steps_values: one step
+         per tier, the tier of the signer highlighted, the time and comment of each
+         decided tier, then what the user's step expects. -->
+    <template id="tier_steps_panel" name="Signature steps">
+        <div class="o_sign_oca_tier_steps">
+            <t t-call="sign_oca_tier_validation.tier_steps_intro" />
+            <h4 class="mb-1">Approvals</h4>
+            <p t-if="intro" class="text-muted small mb-3" t-out="intro" />
+            <ol class="list-unstyled o_sign_oca_tier_timeline">
+                <t t-call="sign_oca_tier_validation.tier_steps_start" />
+                <li
+                    t-foreach="steps"
+                    t-as="step"
+                    t-attf-class="o_sign_oca_tier_step o_sign_oca_tier_step_#{step['status']} #{'o_sign_oca_tier_step_current' if step['current'] else ''} #{'o_sign_oca_tier_step_to_sign' if step['to_sign'] else ''}"
+                >
+                    <div
+                        class="o_sign_oca_tier_step_head d-flex justify-content-between align-items-center gap-2"
+                    >
+                        <strong>
+                            <t t-out="step['who']" />
+                            <span class="fw-normal text-muted">
+                                · <t t-out="step['name']" />
+                            </span>
+                        </strong>
+                        <span
+                            class="badge rounded-pill flex-shrink-0 text-nowrap o_sign_oca_tier_pill"
+                            t-out="step['status_label']"
+                        />
+                    </div>
+                    <div
+                        t-if="step['date']"
+                        class="o_sign_oca_tier_step_date text-muted small"
+                        t-out="step['date']"
+                    />
+                    <blockquote
+                        t-if="step['comment']"
+                        class="o_sign_oca_tier_quote"
+                        t-out="step['comment']"
+                    />
+                    <div t-elif="step['decided']" class="o_sign_oca_tier_no_comment">
+                        No comment
+                    </div>
+                    <span class="o_sign_oca_tier_step_dot" t-out="step['sequence']" />
+                </li>
+            </ol>
+            <div
+                t-if="message"
+                class="o_sign_oca_tier_message border rounded p-3 bg-light"
+            >
+                <t t-out="message" />
+                <ul t-if="hints" class="o_sign_oca_tier_hints small mb-0 mt-2">
+                    <li t-foreach="hints" t-as="hint" t-out="hint" />
+                </ul>
+            </div>
+        </div>
+    </template>
+
+    <template
+        id="portal_sign_document_signed"
+        inherit_id="sign_oca.portal_sign_document_signed"
+    >
+        <xpath expr="//div[hasclass('card')]" position="after">
+            <div
+                t-if="signer.request_id.is_tier_validation"
+                class="card mt-3 o_sign_oca_tier_card"
+            >
+                <div class="card-body" t-out="signer._sign_oca_tier_render_steps()" />
+            </div>
+        </xpath>
+    </template>
+
+    <template
+        id="portal_sign_document_refused"
+        inherit_id="sign_oca_refuse.portal_sign_document_refused"
+    >
+        <xpath expr="//div[hasclass('o_sign_oca_refused')]" position="after">
+            <div
+                t-if="signer.request_id.is_tier_validation"
+                class="card mt-3 o_sign_oca_tier_card"
+            >
+                <div class="card-body" t-out="signer._sign_oca_tier_render_steps()" />
+            </div>
+        </xpath>
+    </template>
+</odoo>

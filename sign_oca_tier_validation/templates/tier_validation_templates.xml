@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Smart button added by tier.validation.get_view to the form views of
+         the models under tier validation. -->
+    <template id="tier_validation_sign_oca_button">
+        <button
+            name="action_view_sign_oca_requests"
+            type="object"
+            class="oe_stat_button"
+            icon="fa-pencil-square-o"
+            invisible="not sign_oca_request_count"
+        >
+            <field
+                name="sign_oca_request_count"
+                widget="statinfo"
+                string="Signatures"
+            />
+        </button>
+    </template>
+</odoo>

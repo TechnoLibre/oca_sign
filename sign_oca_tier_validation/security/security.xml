@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sign_oca_request_rule_tier_reviewer_read" model="ir.rule">
+        <field name="name">Sign Request tier reviewers: read</field>
+        <field name="model_id" ref="sign_oca.model_sign_oca_request" />
+        <field
+            name="domain_force"
+        >[('tier_review_ids.reviewer_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_unlink" eval="0" />
+    </record>
+    <record id="sign_oca_request_signer_rule_tier_reviewer_read" model="ir.rule">
+        <field name="name">Sign Request Signer tier reviewers: read</field>
+        <field name="model_id" ref="sign_oca.model_sign_oca_request_signer" />
+        <field
+            name="domain_force"
+        >[('tier_review_id.reviewer_ids', 'in', [user.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]" />
+        <field name="perm_read" eval="1" />
+        <field name="perm_create" eval="0" />
+        <field name="perm_write" eval="0" />
+        <field name="perm_unlink" eval="0" />
+    </record>
+</odoo>

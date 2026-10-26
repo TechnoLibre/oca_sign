@@ -1,0 +1,154 @@
+// Width from which the document sits left of the steps panel; narrower,
+// the panel comes first and the document below it.
+$o-sign-oca-tier-side-by-side: 1100px;
+$o-sign-oca-tier-panel-width: 410px;
+
+// Status colours of a step: [status, background, text].
+$o-sign-oca-tier-statuses: (
+    "approved": (
+        #198754,
+        #fff,
+    ),
+    "rejected": (
+        #dc3545,
+        #fff,
+    ),
+    "pending": (
+        #ffc107,
+        #212529,
+    ),
+    "waiting": (
+        #6c757d,
+        #fff,
+    ),
+    "closed": (
+        #e9ecef,
+        #495057,
+    ),
+);
+
+.o_sign_oca_tier_layout {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    .o_sign_oca_tier_document {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+    &.o_sign_oca_tier_layout_steps {
+        overflow-y: auto;
+        // Room for sign_oca's footer, which floats over the bottom.
+        padding-bottom: 5rem;
+        .o_sign_oca_tier_document {
+            flex: 0 0 auto;
+            height: 80vh;
+            min-height: 360px;
+        }
+    }
+    @media (min-width: $o-sign-oca-tier-side-by-side) {
+        flex-direction: row;
+        &.o_sign_oca_tier_layout_steps {
+            overflow-y: hidden;
+            padding-bottom: 0;
+            .o_sign_oca_tier_document {
+                flex: 1 1 auto;
+                height: auto;
+                order: 0;
+            }
+            .o_sign_oca_tier_panel {
+                order: 1;
+                flex: 0 0 $o-sign-oca-tier-panel-width;
+                overflow-y: auto;
+                padding-bottom: 5rem;
+                border-left: 1px solid #dee2e6;
+            }
+        }
+    }
+}
+
+.o_sign_oca_tier_panel {
+    padding: 1rem;
+    background: #fff;
+}
+
+.o_sign_oca_tier_steps {
+    // Vertical line joining the numbered steps.
+    .o_sign_oca_tier_timeline {
+        position: relative;
+        &::before {
+            content: "";
+            position: absolute;
+            left: 13px;
+            top: 6px;
+            bottom: 6px;
+            width: 2px;
+            background: #dee2e6;
+        }
+    }
+    .o_sign_oca_tier_step {
+        position: relative;
+        padding: 0 0 1rem 2.5rem;
+    }
+    .o_sign_oca_tier_step_head {
+        min-height: 28px;
+        strong {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
+    }
+    .o_sign_oca_tier_step_dot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 28px;
+        height: 28px;
+        border: 2px solid;
+        border-radius: 50%;
+        background: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8125rem;
+        font-weight: 700;
+    }
+    @each $status, $colors in $o-sign-oca-tier-statuses {
+        .o_sign_oca_tier_step_#{$status} {
+            .o_sign_oca_tier_pill {
+                background-color: nth($colors, 1);
+                color: nth($colors, 2);
+            }
+            .o_sign_oca_tier_step_dot {
+                border-color: nth($colors, 1);
+                color: nth($colors, 1);
+            }
+        }
+    }
+    // The tier of the signer who opened the page.
+    .o_sign_oca_tier_step_current {
+        > .o_sign_oca_tier_step_head {
+            margin: -0.25rem -0.5rem 0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            background: #fff8e1;
+        }
+    }
+    .o_sign_oca_tier_step_to_sign > .o_sign_oca_tier_step_head {
+        outline: 2px solid #e0a800;
+    }
+    .o_sign_oca_tier_quote {
+        margin: 0.4rem 0 0;
+        padding: 0.5rem 0.75rem;
+        background: #f1f4f9;
+        border-left: 4px solid #7a8fb3;
+        border-radius: 0 4px 4px 0;
+        font-style: normal;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+    .o_sign_oca_tier_no_comment {
+        margin-top: 0.15rem;
+        font-size: 0.8125rem;
+        color: #adb5bd;
+    }
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- Fields that the server fills when a tier is signed or refused,
+         multi-line so that their text starts at the top of their box, level
+         with the other cells of a table row; the reviewer's name comes from
+         sign_oca's Name field. -->
+    <record id="sign_field_date" model="sign.oca.field">
+        <field name="name">Date</field>
+        <field name="field_type">textarea</field>
+    </record>
+    <record id="sign_field_status" model="sign.oca.field">
+        <field name="name">Status</field>
+        <field name="field_type">textarea</field>
+    </record>
+    <!-- Filled by the reviewer, on several lines; copied to the comment of
+         the tier review. -->
+    <record id="sign_field_comment" model="sign.oca.field">
+        <field name="name">Comment</field>
+        <field name="field_type">textarea</field>
+    </record>
+</odoo>

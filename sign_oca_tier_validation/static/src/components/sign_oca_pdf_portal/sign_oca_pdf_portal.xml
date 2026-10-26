@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<templates xml:space="preserve">
+    <t
+        t-name="sign_oca_tier_validation.SignOcaPdfPortal"
+        t-inherit="sign_oca.SignOcaPdfPortal"
+        t-inherit-mode="extension"
+    >
+        <xpath expr="//iframe[hasclass('o_sign_oca_iframe')]" position="replace">
+            <div
+                t-attf-class="o_sign_oca_tier_layout #{tierStepsHtml ? 'o_sign_oca_tier_layout_steps' : ''}"
+            >
+                <aside
+                    t-if="tierStepsHtml"
+                    class="o_sign_oca_tier_panel"
+                    t-out="tierStepsHtml"
+                />
+                <div class="o_sign_oca_tier_document">
+                    <t>$0</t>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

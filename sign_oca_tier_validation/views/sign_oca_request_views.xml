@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sign_oca_request_form_view" model="ir.ui.view">
+        <field name="name">sign.oca.request.form (in sign_oca_tier_validation)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='cancel']" position="before">
+                <!-- Read by the invisible condition of the Cancel button: a
+                     tier request is cancelled with its validation only. -->
+                <field name="is_tier_validation" invisible="1" />
+            </xpath>
+            <xpath expr="//header/button[@name='cancel']" position="attributes">
+                <attribute
+                    name="invisible"
+                >is_tier_validation or state not in ['1_draft', '0_sent', '2_signed']</attribute>
+            </xpath>
+            <xpath expr="//field[@name='signer_ids']/list" position="inside">
+                <field name="tier_review_id" optional="show" />
+                <field name="tier_bypassed" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sign_oca_request_search_view" model="ir.ui.view">
+        <field name="name">sign.oca.request.search (in sign_oca_tier_validation)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_search_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <filter
+                    name="tier_validation"
+                    string="Tier Validation"
+                    domain="[('is_tier_validation', '=', True)]"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>
