@@ -324,11 +324,60 @@ class SignOcaRequest(models.Model):
         self.signer_ids.invalidate_recordset()
 
     def _check_signed(self):
+        """Set the request to ``2_signed`` when every signer has signed.
+
+        :return: True when this call changed the state, else False
+        """
         self.ensure_one()
         if self.state != "0_sent":
-            return
+            return False
         if all(self.mapped("signer_ids.signed_on")):
             self.state = "2_signed"
+            return True
+        return False
+
+    def _on_completed(self):
+        """Hook run once, by the ``action_sign`` of the last signer.
+
+        The state is ``2_signed`` and every signer's hashes are written; the
+        signed copy is not mailed yet (``action_send_signed_request`` runs
+        next), so an override that rewrites ``data`` changes what is sent.
+        Default does nothing.
+        """
+
+    def _stamp_pdf(self, pdf_bytes, items, signer=None):
+        """Draw ``items`` on the document and return the new PDF.
+
+        :param bytes pdf_bytes: the document as it stands
+        :param dict items: ``{key: item}`` as in ``signatory_data``, with
+            ``value`` filled and ``page`` counted from 1
+        :param signer: the ``sign.oca.request.signer`` whose
+            ``_get_pdf_page`` draws each item; without one the default
+            drawing of the model is used
+        :return: bytes of the stamped PDF
+
+        Each item becomes a one-page overlay merged onto its page, and the
+        whole file is written again; earlier PDF signatures embedded in
+        ``pdf_bytes`` do not survive the rewrite. An override may append an
+        incremental update instead.
+        """
+        self.ensure_one()
+        drawer = signer or self.env["sign.oca.request.signer"]
+        reader = PdfFileReader(BytesIO(pdf_bytes))
+        pages = {}
+        for page_number in range(1, reader.numPages + 1):
+            pages[page_number] = reader.getPage(page_number - 1)
+        for item in items.values():
+            page = pages[item["page"]]
+            new_page = drawer._get_pdf_page(item, page.mediaBox)
+            if new_page:
+                page.mergePage(new_page)
+        output = PdfFileWriter()
+        for page in pages.values():
+            output.addPage(page)
+        output_stream = BytesIO()
+        output.write(output_stream)
+        return output_stream.getvalue()
 
     def _set_action_log_vals(self, action, **kwargs):
         vals = kwargs.copy()
@@ -442,7 +491,7 @@ class SignOcaRequestSigner(models.Model):
         self.ensure_one()
         self._set_action_log("view", access_token=access_token)
         return {
-            "role_id": self.role_id.id if not self.signed_on else False,
+            "role_id": self.role_id.id if self._can_sign() else False,
             "name": self.request_id.template_id.name,
             "items": self.request_id.signatory_data,
             "to_sign": self.request_id.to_sign,
@@ -485,6 +534,19 @@ class SignOcaRequestSigner(models.Model):
         if self.request_id.state != "0_sent":
             raise ValidationError(self.env._("Request cannot be signed"))
 
+    def _can_sign(self):
+        """Return whether ``_check_can_sign`` lets this signer sign now.
+
+        ``get_info`` gives the signer's role to the signing page only when
+        it does, and the page shows its fields and sign button to that role.
+        """
+        self.ensure_one()
+        try:
+            self._check_can_sign()
+        except UserError:
+            return False
+        return True
+
     def action_sign(self, items, access_token=False, latitude=False, longitude=False):
         self.ensure_one()
         self.request_id._lock_for_sign()
@@ -495,26 +557,11 @@ class SignOcaRequestSigner(models.Model):
         role_items = self._prepare_sign_items(items)
         signatory_data.update(role_items)
 
-        input_data = BytesIO(b64decode(self.request_id.data))
-        reader = PdfFileReader(input_data)
-        output = PdfFileWriter()
-        pages = {}
-        for page_number in range(1, reader.numPages + 1):
-            pages[page_number] = reader.getPage(page_number - 1)
-
         for item in role_items.values():
             self._check_signable(item)
-            page = pages[item["page"]]
-            new_page = self._get_pdf_page(item, page.mediaBox)
-            if new_page:
-                page.mergePage(new_page)
-            pages[item["page"]] = page
-        for page_number in pages:
-            output.addPage(pages[page_number])
-        output_stream = BytesIO()
-        output.write(output_stream)
-        output_stream.seek(0)
-        signed_pdf = output_stream.read()
+        signed_pdf = self.request_id._stamp_pdf(
+            b64decode(self.request_id.data), role_items, signer=self
+        )
         final_hash = sha256(signed_pdf).hexdigest()
         # TODO: Review that the hash has not been changed...
         self.request_id.write(
@@ -527,7 +574,7 @@ class SignOcaRequestSigner(models.Model):
         self.signature_hash = final_hash
         self.latitude = latitude
         self.longitude = longitude
-        self.request_id._check_signed()
+        completed = self.request_id._check_signed()
         self._set_action_log("sign", access_token=access_token)
         if self.sequence_id:
             self.flush_recordset()
@@ -538,11 +585,23 @@ class SignOcaRequestSigner(models.Model):
                     "inalterable_hash": self._get_new_hash(new_number),
                 }
             )
+        self._after_sign()
+        if completed:
+            self.request_id._on_completed()
         self.request_id.action_send_signed_request()
         return {
             "type": "ir.actions.act_url",
             "url": self.access_url,
         }
+
+    def _after_sign(self):
+        """Hook run by ``action_sign`` once this signer has signed.
+
+        The document, ``signatory_data``, ``signature_hash``, the ``sign`` log
+        entry and the inalterability hash are written; the request state is
+        already ``2_signed`` when this signer was the last one, and
+        ``request._on_completed`` runs right after. Default does nothing.
+        """
 
     def _prepare_sign_items(self, items):
         """Return the items this signer fills, ready to store and draw.
