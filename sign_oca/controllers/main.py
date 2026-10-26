@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from urllib import parse
 
 from odoo import _, http
 from odoo.exceptions import AccessError, MissingError
@@ -257,35 +256,22 @@ class PortalSign(CustomerPortal):
         ["/my/sign/<int:request_id>/download"], type="http", auth="user", website=True
     )
     def portal_download_signed(self, request_id, **kw):
+        """Send the current document of the request as a PDF download.
+
+        The file is streamed by this route, which checks the user on every
+        call; no lasting link to the attachment is handed out.
+        """
         sign_request = request.env["sign.oca.request"].sudo().browse(request_id)
         if not sign_request.exists() or not self._sign_oca_can_download(sign_request):
             return request.not_found()
-        # find the signed document attachment
-        attachment = (
-            request.env["ir.attachment"]
-            .sudo()
-            .search(
-                [
-                    ("res_model", "=", "sign.oca.request"),
-                    ("res_id", "=", sign_request.id),
-                    ("res_field", "=", "data"),
-                ],
-                limit=1,
-            )
-        )
-        if not attachment:
+        if not sign_request.data:
             return request.not_found()
-        access_token = attachment.generate_access_token()[0]
-        ascii_filename = "document.pdf"
-        filename = sign_request.name or ascii_filename
+        filename = sign_request.name or "document.pdf"
         # Ensure .pdf extension
         if not filename.lower().endswith(".pdf"):
             filename = f"{filename}.pdf"
-        utf8_filename = parse.quote(filename)
-        params = {
-            "download": "true",
-            "filename": utf8_filename,
-            "access_token": access_token,
-        }
-        url = f"/web/content/{attachment.id}?{parse.urlencode(params)}"
-        return request.redirect(url)
+        stream = http.Stream.from_binary_field(sign_request, "data")
+        stream.mimetype = "application/pdf"
+        stream.download_name = filename
+        stream.public = False
+        return stream.get_response(as_attachment=True)
