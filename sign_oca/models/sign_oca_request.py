@@ -874,15 +874,20 @@ class SignOcaRequestSigner(models.Model):
         par = Paragraph(
             self._get_pdf_text_markup(item["value"]), style=self._getParagraphStyle()
         )
-        par.wrap(
-            item["width"] / 100 * float(box.getWidth()),
-            item["height"] / 100 * float(box.getHeight()),
-        )
-        par.drawOn(
-            can,
-            item["position_x"] / 100 * float(box.getWidth()),
-            (100 - item["position_y"] - item["height"]) / 100 * float(box.getHeight()),
-        )
+        width = item["width"] / 100 * float(box.getWidth())
+        height = item["height"] / 100 * float(box.getHeight())
+        x = item["position_x"] / 100 * float(box.getWidth())
+        y = (100 - item["position_y"] - item["height"]) / 100 * float(box.getHeight())
+        __, text_height = par.wrap(width, height)
+        # The text sits at the bottom of its box; a text taller than the box
+        # starts at its top instead, and what passes its bottom is cut, so
+        # nothing is drawn outside the box.
+        can.saveState()
+        clip = can.beginPath()
+        clip.rect(x, y, width, height)
+        can.clipPath(clip, stroke=0, fill=0)
+        par.drawOn(can, x, y + min(0, height - text_height))
+        can.restoreState()
         can.save()
         packet.seek(0)
         new_pdf = PdfFileReader(packet)
