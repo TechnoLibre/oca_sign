@@ -28,6 +28,29 @@ class SignController(http.Controller):
 
 
 class PortalSign(CustomerPortal):
+    def _sign_oca_check_access(self, signer_id, access_token):
+        """Return the signer that ``signer_id`` and ``access_token`` open.
+
+        Every ``/sign_oca/*`` route of a signer starts with this check.
+
+        :param int signer_id: id of a ``sign.oca.request.signer``
+        :param str access_token: the signer's portal access token
+        :return: the signer, as superuser
+        :raise MissingError: when the signer does not exist
+        :raise AccessError: when the token does not match. Overrides may add
+            conditions, and raise a subclass of AccessError that
+            ``_sign_oca_access_error_response`` turns into its own response.
+        """
+        return self._document_check_access(
+            "sign.oca.request.signer", signer_id, access_token
+        )
+
+    def _sign_oca_access_error_response(self, signer_id, access_token, error):
+        """Return the response of a ``/sign_oca/*`` route refused by
+        ``_sign_oca_check_access`` with ``error``: a redirection to ``/my``.
+        """
+        return request.redirect("/my")
+
     @http.route(
         ["/sign_oca/document/<int:signer_id>/<string:access_token>"],
         type="http",
@@ -36,11 +59,9 @@ class PortalSign(CustomerPortal):
     )
     def get_sign_oca_access(self, signer_id, access_token, **kwargs):
         try:
-            signer_sudo = self._document_check_access(
-                "sign.oca.request.signer", signer_id, access_token
-            )
-        except (AccessError, MissingError):
-            return request.redirect("/my")
+            signer_sudo = self._sign_oca_check_access(signer_id, access_token)
+        except (AccessError, MissingError) as error:
+            return self._sign_oca_access_error_response(signer_id, access_token, error)
         if signer_sudo.signed_on:
             return request.render(
                 "sign_oca.portal_sign_document_signed",
@@ -55,6 +76,7 @@ class PortalSign(CustomerPortal):
                 "doc": signer_sudo.request_id,
                 "partner": signer_sudo.partner_id,
                 "signer": signer_sudo,
+                "can_sign": signer_sudo._can_sign(),
                 "access_token": access_token,
                 "sign_oca_backend_info": {
                     "access_token": access_token,
@@ -72,11 +94,9 @@ class PortalSign(CustomerPortal):
     )
     def get_sign_oca_content_access(self, signer_id, access_token):
         try:
-            signer_sudo = self._document_check_access(
-                "sign.oca.request.signer", signer_id, access_token
-            )
-        except (AccessError, MissingError):
-            return request.redirect("/my")
+            signer_sudo = self._sign_oca_check_access(signer_id, access_token)
+        except (AccessError, MissingError) as error:
+            return self._sign_oca_access_error_response(signer_id, access_token, error)
         return http.Stream.from_binary_field(
             signer_sudo.request_id, "data"
         ).get_response(mimetype="application/pdf")
@@ -89,11 +109,9 @@ class PortalSign(CustomerPortal):
     )
     def get_sign_oca_info_access(self, signer_id, access_token):
         try:
-            signer_sudo = self._document_check_access(
-                "sign.oca.request.signer", signer_id, access_token
-            )
-        except (AccessError, MissingError):
-            return request.redirect("/my")
+            signer_sudo = self._sign_oca_check_access(signer_id, access_token)
+        except (AccessError, MissingError) as error:
+            return self._sign_oca_access_error_response(signer_id, access_token, error)
         return signer_sudo.get_info(access_token=access_token)
 
     @http.route(
@@ -106,11 +124,9 @@ class PortalSign(CustomerPortal):
         self, signer_id, access_token, items, latitude=False, longitude=False
     ):
         try:
-            signer_sudo = self._document_check_access(
-                "sign.oca.request.signer", signer_id, access_token
-            )
-        except (AccessError, MissingError):
-            return request.redirect("/my")
+            signer_sudo = self._sign_oca_check_access(signer_id, access_token)
+        except (AccessError, MissingError) as error:
+            return self._sign_oca_access_error_response(signer_id, access_token, error)
         return signer_sudo.action_sign(
             items, access_token=access_token, latitude=latitude, longitude=longitude
         )

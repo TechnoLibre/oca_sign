@@ -7,3 +7,4 @@ from . import test_sign_log_user_agent
 from . import test_sign_items
 from . import test_sign_lock
 from . import test_sign_hooks
+from . import test_sign_portal_access
