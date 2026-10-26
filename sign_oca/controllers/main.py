@@ -284,15 +284,17 @@ class PortalSign(CustomerPortal):
 
     def _sign_oca_download_response(self, sign_request):
         """Return the current document of ``sign_request`` as a PDF
-        attachment named after the request, or a 404 without a document.
+        attachment named by its ``filename``, else after the request, or a
+        404 without a document or once the request is cancelled: the links
+        handed out before its cancellation no longer serve it.
 
         The caller has checked the access; ``sign_request`` is read as
         superuser.
         """
         sign_request = sign_request.sudo()
-        if not sign_request.data:
+        if not sign_request.data or sign_request.state == "3_cancel":
             return request.not_found()
-        filename = sign_request.name or "document.pdf"
+        filename = sign_request.filename or sign_request.name or "document.pdf"
         # Ensure .pdf extension
         if not filename.lower().endswith(".pdf"):
             filename = f"{filename}.pdf"
