@@ -1,0 +1,82 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sign_oca_anchor
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 15:36+0000\n"
+"PO-Revision-Date: 2026-10-26 15:36+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr_CA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "%(count)s field(s) placed from the anchors of the document."
+msgstr "%(count)s champ(s) placé(s) depuis les ancres du document."
+
+#. module: sign_oca_anchor
+#: model_terms:ir.ui.view,arch_db:sign_oca_anchor.sign_oca_request_form_view
+msgid ""
+"Add a field for each anchor printed in the document, such as "
+"[[sig:customer:signature]], that is not placed yet."
+msgstr ""
+"Ajoute un champ pour chaque ancre imprimée dans le document, comme "
+"[[sig:customer:signature]], qui n'est pas encore placée."
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "No new anchor found in the document."
+msgstr "Aucune nouvelle ancre trouvée dans le document."
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "Page %(page)s: %(anchor)s (%(reasons)s)"
+msgstr "Page %(page)s : %(anchor)s (%(reasons)s)"
+
+#. module: sign_oca_anchor
+#: model_terms:ir.ui.view,arch_db:sign_oca_anchor.sign_oca_request_form_view
+msgid "Place from anchors"
+msgstr "Placer depuis les ancres"
+
+#. module: sign_oca_anchor
+#: model:ir.model,name:sign_oca_anchor.model_sign_oca_request
+msgid "Sign Request"
+msgstr "Demande de signature"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid ""
+"Some anchors of the document cannot be placed:\n"
+"%s"
+msgstr ""
+"Certaines ancres du document ne peuvent pas être placées :\n"
+"%s"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown field"
+msgstr "champ inconnu"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown option %s"
+msgstr "option inconnue %s"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown role"
+msgstr "rôle inconnu"

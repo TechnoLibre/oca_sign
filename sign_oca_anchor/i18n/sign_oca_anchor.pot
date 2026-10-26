@@ -1,0 +1,77 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* sign_oca_anchor
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 19:09+0000\n"
+"PO-Revision-Date: 2026-10-26 19:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "%(count)s field(s) placed from the anchors of the document."
+msgstr ""
+
+#. module: sign_oca_anchor
+#: model_terms:ir.ui.view,arch_db:sign_oca_anchor.sign_oca_request_form_view
+msgid ""
+"Add a field for each anchor printed in the document, such as "
+"[[sig:customer:signature]], that is not placed yet."
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "No new anchor found in the document."
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "Page %(page)s: %(anchor)s (%(reasons)s)"
+msgstr ""
+
+#. module: sign_oca_anchor
+#: model_terms:ir.ui.view,arch_db:sign_oca_anchor.sign_oca_request_form_view
+msgid "Place from anchors"
+msgstr ""
+
+#. module: sign_oca_anchor
+#: model:ir.model,name:sign_oca_anchor.model_sign_oca_request
+msgid "Sign Request"
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid ""
+"Some anchors of the document cannot be placed:\n"
+"%s"
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown field"
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown option %s"
+msgstr ""
+
+#. module: sign_oca_anchor
+#. odoo-python
+#: code:addons/sign_oca_anchor/models/sign_oca_request.py:0
+msgid "unknown role"
+msgstr ""

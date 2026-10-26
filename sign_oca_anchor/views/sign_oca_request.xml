@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record model="ir.ui.view" id="sign_oca_request_form_view">
+        <field name="name">sign.oca.request.form (in sign_oca_anchor)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_form_view" />
+        <field name="arch" type="xml">
+            <button name="action_send" position="after">
+                <button
+                    string="Place from anchors"
+                    type="object"
+                    name="action_place_from_anchors"
+                    icon="fa-crosshairs"
+                    invisible="state != '1_draft'"
+                    groups="sign_oca.sign_oca_group_user"
+                    help="Add a field for each anchor printed in the document, such as [[sig:customer:signature]], that is not placed yet."
+                />
+            </button>
+        </field>
+    </record>
+</odoo>
