@@ -1,0 +1,41 @@
+// Multi-line text items inside the document frame.
+.o_sign_oca_field[data-field-type="textarea"] {
+    textarea.o_sign_oca_textarea {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 1px 2px;
+        border: transparent;
+        background-color: transparent;
+        // Helvetica is the font the text is stamped with in the PDF.
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 13px;
+        line-height: 1.2;
+        white-space: pre-wrap;
+        overflow-y: auto;
+        resize: none;
+    }
+    // A small box, focused: the textarea grows over the page (see the
+    // expand method of the element).
+    &.o_sign_oca_textarea_expanded {
+        z-index: 30;
+        textarea.o_sign_oca_textarea {
+            position: absolute;
+            top: 0;
+            padding: 4px 6px;
+            font-size: 15px;
+            background-color: #fff;
+            border: 1px solid #714b67;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+    }
+    .o_sign_placeholder {
+        white-space: normal;
+    }
+    .o_sign_oca_textarea_hint {
+        margin: 0 0.25em;
+        opacity: 0.6;
+    }
+}

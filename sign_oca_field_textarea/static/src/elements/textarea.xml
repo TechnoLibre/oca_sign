@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<templates xml:space="preserve">
+    <!-- The input of a multi-line text item on the signing page. -->
+    <t t-name="sign_oca_field_textarea.sign_iframe_field_textarea">
+        <textarea
+            class="o_sign_oca_textarea"
+            tabindex="-1"
+            t-att-placeholder="item.placeholder || item.name"
+        />
+    </t>
+    <!-- The item boxes carry their field type, which the stylesheet of the
+         document frame reads. -->
+    <t t-inherit="sign_oca.sign_iframe_field" t-inherit-mode="extension">
+        <xpath expr="./div" position="attributes">
+            <attribute name="t-att-data-field-type">field_type</attribute>
+        </xpath>
+    </t>
+    <t t-inherit="sign_oca.sign_iframe_field_configure" t-inherit-mode="extension">
+        <xpath expr="./div" position="attributes">
+            <attribute name="t-att-data-field-type">field_type</attribute>
+        </xpath>
+        <xpath expr="//span[hasclass('o_sign_placeholder')]" position="before">
+            <span
+                t-if="field_type == 'textarea'"
+                class="fa fa-paragraph o_sign_oca_textarea_hint"
+                role="img"
+                aria-label="Multi-line Text"
+                title="Multi-line Text"
+            />
+        </xpath>
+    </t>
+</templates>
