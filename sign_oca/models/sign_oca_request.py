@@ -7,6 +7,7 @@ import logging
 from base64 import b64decode, b64encode
 from hashlib import sha256
 from io import BytesIO
+from xml.sax.saxutils import escape
 
 from reportlab.graphics.shapes import Drawing, Line, Rect
 from reportlab.lib.colors import black, transparent
@@ -507,7 +508,9 @@ class SignOcaRequestSigner(models.Model):
         can = canvas.Canvas(packet, pagesize=(box.getWidth(), box.getHeight()))
         if not item["value"]:
             return False
-        par = Paragraph(item["value"], style=self._getParagraphStyle())
+        par = Paragraph(
+            self._get_pdf_text_markup(item["value"]), style=self._getParagraphStyle()
+        )
         par.wrap(
             item["width"] / 100 * float(box.getWidth()),
             item["height"] / 100 * float(box.getHeight()),
@@ -521,6 +524,16 @@ class SignOcaRequestSigner(models.Model):
         packet.seek(0)
         new_pdf = PdfFileReader(packet)
         return new_pdf.getPage(0)
+
+    def _get_pdf_text_markup(self, value):
+        """Return ``value`` as reportlab Paragraph markup that shows it verbatim.
+
+        Paragraph reads its text as markup: tags such as ``<img src=...>``
+        load files. The value is XML-escaped, and its line breaks become
+        ``<br/>`` so a multi-line text keeps its lines.
+        """
+        text = str(value).replace("\r\n", "\n").replace("\r", "\n")
+        return escape(text).replace("\n", "<br/>")
 
     def _getParagraphStyle(self):
         return ParagraphStyle(name="Oca Sign Style")
