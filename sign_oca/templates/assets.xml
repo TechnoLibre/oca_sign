@@ -45,9 +45,9 @@
 
                 <div class="card">
                     <div class="card-header">
-                        <h2>Thanks for signing <t
+                        <h2>Thanks for signing the document <t
                             t-out="signer.request_id.name"
-                        /> document</h2>
+                        /></h2>
                     </div>
                     <div class="card-body">
                         <t t-if="signer.request_id.state == '2_signed'">

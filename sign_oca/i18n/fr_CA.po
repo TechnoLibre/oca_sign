@@ -294,7 +294,7 @@ msgstr "Demander la position"
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__message_attachment_count
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template__message_attachment_count
 msgid "Attachment Count"
-msgstr "Nombre de pièces-jointes"
+msgstr "Nombre de pièces jointes"
 
 #. module: sign_oca
 #. odoo-javascript
@@ -387,7 +387,7 @@ msgstr "Contact"
 #. module: sign_oca
 #: model:ir.model.fields.selection,name:sign_oca.selection__sign_oca_request_log__action__create
 msgid "Create"
-msgstr "Créer"
+msgstr "Créer"
 
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.sign_oca_request_signer_search_view
@@ -405,7 +405,7 @@ msgstr "Date de création"
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template_generate_signer__create_uid
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template_item__create_uid
 msgid "Created by"
-msgstr "Créer par"
+msgstr "Créé par"
 
 #. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_field__create_date
@@ -856,7 +856,7 @@ msgstr "Latitude"
 #. module: sign_oca
 #: model:ir.model,name:sign_oca.model_sign_oca_request_log
 msgid "Log access and edition on requests"
-msgstr "Journaliser l'accès et la modification des demandes"
+msgstr "Journal des accès et des modifications des demandes"
 
 #. module: sign_oca
 #. odoo-javascript
@@ -1209,7 +1209,7 @@ msgstr "Envoyé"
 #. odoo-python
 #: code:addons/sign_oca/controllers/main.py:0
 msgid "Sent to Signed"
-msgstr "D'envoyé à signé"
+msgstr "Envoyées puis signées"
 
 #. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__sequence_id
@@ -1260,17 +1260,17 @@ msgstr "Modèle Signature OCA"
 #: model:ir.actions.act_window,name:sign_oca.sign_oca_template_generate_act_window
 #: model_terms:ir.ui.view,arch_db:sign_oca.sign_oca_template_generate_form_view
 msgid "Sign Oca Template Generate"
-msgstr "Générer le modèle de Signature OCA"
+msgstr "Générer depuis un modèle Signature OCA"
 
 #. module: sign_oca
 #: model:ir.actions.act_window,name:sign_oca.sign_oca_template_generate_multi_act_window
 msgid "Sign Oca Template Generate Multi"
-msgstr "Générer plusieurs depuis un modèle Sign Oca"
+msgstr "Générer plusieurs demandes depuis un modèle Signature OCA"
 
 #. module: sign_oca
 #: model:ir.model,name:sign_oca.model_sign_oca_template_item
 msgid "Sign Oca Template Item"
-msgstr "Élément de modèle Sign Oca"
+msgstr "Élément de modèle Signature OCA"
 
 #. module: sign_oca
 #: model:ir.model,name:sign_oca.model_sign_oca_request
@@ -1285,7 +1285,7 @@ msgstr "Signataires de la demande de signature"
 #. module: sign_oca
 #: model:ir.model,name:sign_oca.model_sign_oca_request_signer
 msgid "Sign Request Value"
-msgstr "Valeur de la demande de signature"
+msgstr "Signataire de la demande"
 
 #. module: sign_oca
 #. odoo-javascript
@@ -1406,7 +1406,7 @@ msgstr "Signé le"
 #. odoo-python
 #: code:addons/sign_oca/controllers/main.py:0
 msgid "Signed to Sent"
-msgstr "De signé à envoyé"
+msgstr "Signées puis envoyées"
 
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.report_signature_certificate_doc
@@ -1493,8 +1493,8 @@ msgstr "Texte"
 
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_signed
-msgid "Thanks for signing"
-msgstr "Merci d'avoir signé"
+msgid "Thanks for signing the document"
+msgstr "Merci d'avoir signé le document"
 
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_signed
@@ -1680,8 +1680,3 @@ msgstr ""
 msgid ""
 "You will cancel the request and all the accesses. Are you sure about it?"
 msgstr "Vous allez annuler la demande et tous les accès. En êtes-vous sûr ?"
-
-#. module: sign_oca
-#: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_signed
-msgid "document"
-msgstr "document"
