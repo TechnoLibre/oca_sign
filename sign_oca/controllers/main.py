@@ -201,12 +201,36 @@ class PortalSign(CustomerPortal):
             values,
         )
 
+    def _sign_oca_can_download(self, sign_request):
+        """Tell whether the current user may download ``sign_request``.
+
+        A signer of the request may, with the partner and state conditions of
+        ``get_sign_requests_domain``; so may a user whose access rights let
+        them read the request.
+
+        :param sign_request: a ``sign.oca.request`` record that exists
+        :return: bool
+        """
+        domain = expression.AND(
+            [
+                [("request_id", "=", sign_request.id)],
+                self.get_sign_requests_domain(request),
+            ]
+        )
+        if request.env["sign.oca.request.signer"].sudo().search_count(domain):
+            return True
+        try:
+            sign_request.with_env(request.env).check_access("read")
+        except AccessError:
+            return False
+        return True
+
     @http.route(
         ["/my/sign/<int:request_id>/download"], type="http", auth="user", website=True
     )
     def portal_download_signed(self, request_id, **kw):
         sign_request = request.env["sign.oca.request"].sudo().browse(request_id)
-        if not sign_request.exists():
+        if not sign_request.exists() or not self._sign_oca_can_download(sign_request):
             return request.not_found()
         # find the signed document attachment
         attachment = (
