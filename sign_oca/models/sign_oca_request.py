@@ -8,6 +8,7 @@ from hashlib import sha256
 from io import BytesIO
 from xml.sax.saxutils import escape
 
+from PIL import Image as PILImage
 from reportlab.graphics.shapes import Drawing, Line, Rect
 from reportlab.lib.colors import black, transparent
 from reportlab.lib.styles import ParagraphStyle
@@ -21,6 +22,13 @@ from odoo.tools import float_repr
 from odoo.tools.pdf import PdfFileReader, PdfFileWriter
 
 _logger = logging.getLogger(__name__)
+
+# Bounds of the values a signer sends: a text field holds at most
+# MAX_TEXT_LENGTH characters; a signature is an image of at most
+# MAX_SIGNATURE_BYTES once decoded and MAX_SIGNATURE_PIXELS pixels.
+MAX_TEXT_LENGTH = 2000
+MAX_SIGNATURE_BYTES = 2 * 1024 * 1024
+MAX_SIGNATURE_PIXELS = 4096 * 4096
 
 
 class SignOcaRequest(models.Model):
@@ -807,10 +815,56 @@ class SignOcaRequestSigner(models.Model):
         return role_items
 
     def _check_signable(self, item):
+        self._check_item_value(item)
         if not item["required"]:
             return
         if not item["value"]:
             raise ValidationError(self.env._("Field %s is not filled") % item["name"])
+
+    def _check_item_value(self, item):
+        """Raise when the value of ``item`` cannot be stored and drawn.
+
+        A text is at most ``MAX_TEXT_LENGTH`` characters long. A signature
+        is a base64 image, bare or as a data URI, that PIL reads, within
+        ``MAX_SIGNATURE_BYTES`` and ``MAX_SIGNATURE_PIXELS``; only its header
+        is read to get its size, so an oversized image is refused before it
+        is decoded.
+
+        :raise ValidationError: naming the field
+        """
+        value = item.get("value")
+        if not value or isinstance(value, bool):
+            return
+        if item.get("field_type") == "signature":
+            if not isinstance(value, str) or not self._is_signature_image(value):
+                raise ValidationError(
+                    self.env._("Field %s does not hold a signature image.")
+                    % item["name"]
+                )
+        elif isinstance(value, str) and len(value) > MAX_TEXT_LENGTH:
+            raise ValidationError(
+                self.env._(
+                    "Field %(name)s is longer than %(max)s characters.",
+                    name=item["name"],
+                    max=MAX_TEXT_LENGTH,
+                )
+            )
+
+    def _is_signature_image(self, value):
+        """Tell whether ``value``, a base64 image, is one ``_check_item_value``
+        accepts."""
+        base64_str = value.split(",", 1)[1] if "," in value else value
+        if len(base64_str) > MAX_SIGNATURE_BYTES * 4 // 3 + 4:
+            return False
+        try:
+            image_data = b64decode(base64_str + "=" * (-len(base64_str) % 4))
+            with PILImage.open(BytesIO(image_data)) as image:
+                if image.width * image.height > MAX_SIGNATURE_PIXELS:
+                    return False
+                image.verify()
+        except Exception:  # noqa: BLE001 - any unreadable data is refused
+            return False
+        return True
 
     def _get_pdf_page_text(self, item, box):
         packet = BytesIO()

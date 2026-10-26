@@ -12,3 +12,4 @@ from . import test_sign_log_actor
 from . import test_sign_portal_token
 from . import test_sign_access_rules
 from . import test_sign_server_fields
+from . import test_sign_item_values
