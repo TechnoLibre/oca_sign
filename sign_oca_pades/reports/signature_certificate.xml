@@ -1,0 +1,422 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <!-- A time of the certificate: UTC, then the local time in parentheses.
+         ``moment`` is a value of ``_format_datetime`` of
+         ``sign.oca.pades.certificate``. -->
+    <template id="certificate_datetime">
+        <t t-if="moment">
+            <span class="text-nowrap" t-esc="moment['utc']" />
+            <t t-if="moment['local']">
+                <br t-if="stacked" />
+                <span class="text-nowrap text-muted">(<t
+                    t-esc="moment['local']"
+                />)</span>
+            </t>
+        </t>
+        <span t-else="" class="text-muted">Not available</span>
+    </template>
+
+    <template
+        id="report_signature_certificate_doc"
+        inherit_id="sign_oca.report_signature_certificate_doc"
+    >
+        <xpath expr="//div[hasclass('page')]" position="attributes">
+            <attribute
+                name="t-att-style"
+            >env['sign.oca.pades.certificate']._get_page_style()</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('page')]/h1" position="before">
+            <t
+                t-set="certificate"
+                t-value="env['sign.oca.pades.certificate']._get_values(o)"
+            />
+            <style>
+                .o_sign_oca_certificate_table {
+                    font-size: 0.85em;
+                }
+                .o_sign_oca_certificate_table tr,
+                .o_sign_oca_certificate_table tbody,
+                .o_sign_oca_certificate_decisions tr {
+                    page-break-inside: avoid;
+                }
+                .o_sign_oca_certificate_fixed {
+                    table-layout: fixed;
+                }
+                .o_sign_oca_certificate_decisions {
+                    width: 100%;
+                    border-collapse: separate;
+                    border-spacing: 0;
+                }
+                .o_sign_oca_certificate_decisions,
+                .o_sign_oca_certificate_decisions > tbody,
+                .o_sign_oca_certificate_decisions > tbody > tr,
+                .o_sign_oca_certificate_decisions > tbody > tr > td {
+                    padding: 0;
+                    border-style: none;
+                }
+                .o_sign_oca_certificate_decision .table {
+                    border-top: 0;
+                }
+            </style>
+        </xpath>
+        <xpath expr="//div[hasclass('page')]/h1" position="after">
+            <p class="text-muted" id="certificate_time_zone">
+                <t t-if="certificate['tz'] != 'UTC'">
+                    <span
+                    >Times are in UTC, followed by the local time in parentheses. Time zone:</span>
+                    <span t-esc="certificate['tz']" />
+                </t>
+                <span t-else="">Times are in UTC.</span>
+            </p>
+        </xpath>
+        <xpath expr="//div[@id='created_on']" position="replace">
+            <div class="mb8" id="created_on">
+                <span class="fw-bold">Created on:</span>
+                <t t-call="sign_oca_pades.certificate_datetime">
+                    <t t-set="moment" t-value="certificate['created_on']" />
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='print_date']" position="replace">
+            <div class="mb8" id="print_date">
+                <span class="fw-bold">Print date:</span>
+                <t t-call="sign_oca_pades.certificate_datetime">
+                    <t t-set="moment" t-value="certificate['printed_on']" />
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='signers']" position="replace">
+            <div class="mb8" id="signers">
+                <t t-set="counts" t-value="certificate['signer_counts']" />
+                <span class="fw-bold">Signers:</span>
+                <span t-esc="counts['total']" />
+                <span>signers →</span>
+                <span t-esc="counts['signed']" />
+                <span>signed,</span>
+                <t t-if="counts['refused']">
+                    <span t-esc="counts['refused']" />
+                    <span>refused,</span>
+                </t>
+                <t t-if="counts['approved']">
+                    <span t-esc="counts['approved']" />
+                    <span>approved without signature,</span>
+                </t>
+                <t t-if="counts['undecided']">
+                    <span t-esc="counts['undecided']" />
+                    <span>not decided</span>
+                </t>
+                <t t-else="">
+                    <span t-esc="counts['pending']" />
+                    <span>pending</span>
+                </t>
+            </div>
+        </xpath>
+        <xpath expr="//div[@id='current_hash']" position="after">
+            <div class="mb8" id="original_sha256" t-if="o.pades_original_sha256">
+                <span class="fw-bold">Original document SHA-256:</span>
+                <span class="text-break" t-field="o.pades_original_sha256" />
+            </div>
+            <div class="mb8" id="hash_chain">
+                <t
+                    t-set="chain_signers"
+                    t-value="o.signer_ids.filtered(lambda s: s.inalterable_hash)"
+                />
+                <span class="fw-bold">Hash chain:</span>
+                <span
+                    t-if="chain_signers and not any(chain_signers.mapped('altered_hash'))"
+                >verified</span>
+                <span t-elif="chain_signers" class="text-danger">altered</span>
+                <span t-else="" class="text-muted">no signature yet</span>
+            </div>
+        </xpath>
+
+        <!-- Signers, in signing order, with the status of their decision -->
+        <xpath expr="//div[@id='document_signers_table']/table" position="replace">
+            <table class="table table-bordered o_sign_oca_certificate_table">
+                <thead class="bg-100" style="border-bottom: 2px solid #dee2e6;">
+                    <tr>
+                        <th class="text-start" style="width: 30%;">Signer</th>
+                        <th class="text-start" style="width: 32%;">Email</th>
+                        <th class="text-start" style="width: 24%;">Role</th>
+                        <th class="text-start" style="width: 14%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr t-foreach="certificate['signers']" t-as="signer">
+                        <td t-esc="signer.partner_id.name" />
+                        <td class="text-break" t-esc="signer.partner_id.email" />
+                        <td t-esc="signer.role_id.display_name" />
+                        <td t-esc="certificate['signer_status'][signer.id]" />
+                    </tr>
+                </tbody>
+            </table>
+        </xpath>
+
+        <!-- Decisions: each signature or refusal is a block of its own that
+             keeps its detail row on the same page -->
+        <xpath expr="//div[hasclass('document_signatures')]" position="replace">
+            <div class="document_signatures mb32" t-if="certificate['decisions']">
+                <div class="row pt4">
+                    <div class="col-12" id="document_signatures_table">
+                        <t
+                            t-set="decision_colspan"
+                            t-value="4 + len(certificate['signer_columns'])"
+                        />
+                        <t
+                            t-set="extra_width"
+                            t-value="28.0 / (len(certificate['signer_columns']) or 1)"
+                        />
+                        <!-- One row of an outer table per decision, holding a
+                             table of the decision and its detail row, the
+                             title and the header in the first one:
+                             wkhtmltopdf keeps a row on one page, so neither
+                             a decision and its detail nor the title, the
+                             header and the first decision split across two
+                             pages. The column widths are the same in every
+                             inner table. -->
+                        <t t-set="decision_cols">
+                            <colgroup>
+                                <col style="width: 22%;" />
+                                <col style="width: 12%;" />
+                                <col style="width: 24%;" />
+                                <col
+                                    t-foreach="certificate['signer_columns']"
+                                    t-as="column"
+                                    t-attf-style="width: {{ extra_width }}%;"
+                                />
+                                <col
+                                    t-attf-style="width: {{ 14 if certificate['signer_columns'] else 42 }}%;"
+                                />
+                            </colgroup>
+                        </t>
+                        <table
+                            class="o_sign_oca_certificate_decisions o_ignore_layout_styling"
+                        >
+                            <tbody>
+                                <tr
+                                    t-foreach="certificate['decisions']"
+                                    t-as="decision"
+                                    class="o_sign_oca_certificate_decision"
+                                >
+                                    <td>
+                                        <h3
+                                            t-if="decision_first"
+                                            id="document_signatures_title"
+                                            class="text-muted mb16"
+                                        >Signatures</h3>
+                                        <t
+                                            t-set="signer"
+                                            t-value="decision['signer']"
+                                        />
+                                        <table
+                                            class="table table-bordered mb-0 o_sign_oca_certificate_table o_sign_oca_certificate_fixed"
+                                        >
+                                            <t t-out="decision_cols" />
+                                            <tbody>
+                                                <tr
+                                                    t-if="decision_first"
+                                                    class="bg-100"
+                                                    style="border-bottom: 2px solid #dee2e6;"
+                                                >
+                                                    <th class="text-start">Signer</th>
+                                                    <th class="text-start">Decision</th>
+                                                    <th class="text-start">Date</th>
+                                                    <th
+                                                        class="text-start"
+                                                        t-foreach="certificate['signer_columns']"
+                                                        t-as="column"
+                                                        t-esc="column[0]"
+                                                    />
+                                                    <th
+                                                        class="text-start"
+                                                    >Geolocation</th>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <div
+                                                            t-esc="signer.partner_id.name"
+                                                        />
+                                                        <div
+                                                            class="text-muted"
+                                                            t-esc="signer.role_id.display_name"
+                                                        />
+                                                    </td>
+                                                    <td t-esc="decision['status']" />
+                                                    <td>
+                                                        <t
+                                                            t-call="sign_oca_pades.certificate_datetime"
+                                                        >
+                                                            <t
+                                                                t-set="moment"
+                                                                t-value="decision['date']"
+                                                            />
+                                                            <t
+                                                                t-set="stacked"
+                                                                t-value="True"
+                                                            />
+                                                        </t>
+                                                    </td>
+                                                    <td
+                                                        t-foreach="certificate['signer_columns']"
+                                                        t-as="column"
+                                                    >
+                                                        <t
+                                                            t-set="cell"
+                                                            t-value="column[1](signer)"
+                                                        />
+                                                        <span
+                                                            t-if="cell"
+                                                            t-esc="cell"
+                                                        />
+                                                        <span
+                                                            t-else=""
+                                                            class="text-muted"
+                                                        >Not available</span>
+                                                    </td>
+                                                    <td>
+                                                        <t
+                                                            t-if="signer.latitude or signer.longitude"
+                                                        >
+                                                            <span
+                                                                t-esc="signer.latitude"
+                                                            />
+                                                            <span>-</span>
+                                                            <span
+                                                                t-esc="signer.longitude"
+                                                            />
+                                                        </t>
+                                                        <span
+                                                            t-else=""
+                                                            class="text-muted"
+                                                        >Not available</span>
+                                                    </td>
+                                                </tr>
+                                                <tr
+                                                    t-if="decision['reason'] or decision['hash']"
+                                                >
+                                                    <td
+                                                        t-att-colspan="decision_colspan"
+                                                    >
+                                                        <div t-if="decision['reason']">
+                                                            <span
+                                                                class="text-muted"
+                                                            >Refusal reason:</span>
+                                                            <span
+                                                                style="white-space: pre-line;"
+                                                                t-esc="decision['reason']"
+                                                            />
+                                                        </div>
+                                                        <t t-if="decision['hash']">
+                                                            <div>
+                                                                <span
+                                                                    class="text-muted"
+                                                                >Inalterability hash:</span>
+                                                                <span
+                                                                    class="text-break"
+                                                                    t-esc="decision['hash']"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <span
+                                                                    class="text-muted"
+                                                                >Hash chain:</span>
+                                                                <span
+                                                                    t-if="decision['altered']"
+                                                                    class="text-danger"
+                                                                >altered</span>
+                                                                <span
+                                                                    t-else=""
+                                                                >verified</span>
+                                                            </div>
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Activity logs: listed by _get_logs of sign.oca.pades.certificate -->
+        <xpath expr="//t[@t-set='request_logs']" position="replace" />
+        <xpath expr="//div[hasclass('document_activity_logs')]" position="replace">
+            <div class="document_activity_logs mb32" t-if="certificate['logs']">
+                <div class="row mb16">
+                    <div class="col-12" id="document_activity_logs_title">
+                        <h3 class="text-muted">Activity Logs</h3>
+                    </div>
+                </div>
+                <div class="row pt4">
+                    <div class="col-12" id="document_activity_logs_table">
+                        <table
+                            class="table table-bordered o_sign_oca_certificate_table"
+                        >
+                            <thead
+                                class="bg-100"
+                                style="border-bottom: 2px solid #dee2e6;"
+                            >
+                                <tr>
+                                    <th
+                                        class="text-start"
+                                        style="width: 13%;"
+                                    >Action</th>
+                                    <th class="text-start" style="width: 22%;">Date</th>
+                                    <th
+                                        class="text-start"
+                                        style="width: 13%;"
+                                    >Partner</th>
+                                    <th
+                                        class="text-start"
+                                        style="width: 12%;"
+                                    >Channel</th>
+                                    <th
+                                        class="text-start"
+                                        style="width: 13%;"
+                                    >IP address</th>
+                                    <th class="text-start">User agent</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr t-foreach="certificate['logs']" t-as="log">
+                                    <td t-esc="log['action']" />
+                                    <td>
+                                        <t t-call="sign_oca_pades.certificate_datetime">
+                                            <t t-set="moment" t-value="log['date']" />
+                                            <t t-set="stacked" t-value="True" />
+                                        </t>
+                                    </td>
+                                    <td t-esc="log['partner']" />
+                                    <td t-esc="log['channel']" />
+                                    <td class="text-break">
+                                        <span t-if="log['ip']" t-esc="log['ip']" />
+                                        <span
+                                            t-else=""
+                                            class="text-muted"
+                                        >Not available</span>
+                                    </td>
+                                    <td class="text-break">
+                                        <span
+                                            t-if="log['user_agent']"
+                                            t-esc="log['user_agent']"
+                                        />
+                                        <span
+                                            t-else=""
+                                            class="text-muted"
+                                        >Not available</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

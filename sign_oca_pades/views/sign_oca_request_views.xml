@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 TechnoLibre
+     License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl). -->
+<odoo>
+    <record id="sign_oca_request_form_view" model="ir.ui.view">
+        <field name="name">sign.oca.request.form (in sign_oca_pades)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_form_view" />
+        <field name="arch" type="xml">
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button
+                    string="Verify Seals"
+                    name="action_pades_verify"
+                    type="object"
+                    icon="fa-shield"
+                    invisible="state not in ['0_sent', '2_signed']"
+                    groups="sign_oca.sign_oca_group_user"
+                />
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="state != '2_signed' or pades_status != 'none'"
+                >
+                    This document is not sealed: no sealing certificate was configured when it was signed.
+                </div>
+                <div
+                    class="alert alert-warning"
+                    role="alert"
+                    invisible="pades_status != 'modified'"
+                >
+                    The document was changed after its last seal.
+                </div>
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="pades_status != 'broken'"
+                >
+                    A seal of this document is broken: the signed content was altered.
+                </div>
+                <div
+                    class="alert alert-danger"
+                    role="alert"
+                    invisible="pades_status != 'untrusted'"
+                >
+                    A seal of this document was made by a certificate that did not seal its signatures.
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='signer_ids']" position="after">
+                <group
+                    string="Seals"
+                    name="pades"
+                    invisible="state not in ['0_sent', '2_signed']"
+                >
+                    <group>
+                        <field name="pades_status" />
+                        <field name="pades_seal_count" />
+                        <field name="pades_seals_intact" />
+                        <field name="pades_last_check" />
+                    </group>
+                    <group>
+                        <field name="pades_original_sha256" />
+                        <field name="pades_final_sha256" />
+                    </group>
+                    <field name="pades_check_details" colspan="2" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sign_oca_request_tree_view" model="ir.ui.view">
+        <field name="name">sign.oca.request.list (in sign_oca_pades)</field>
+        <field name="model">sign.oca.request</field>
+        <field name="inherit_id" ref="sign_oca.sign_oca_request_tree_view" />
+        <field name="arch" type="xml">
+            <xpath expr="/list" position="inside">
+                <field name="pades_status" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+</odoo>
