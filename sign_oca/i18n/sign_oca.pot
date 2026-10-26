@@ -6,6 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 18:36+0000\n"
+"PO-Revision-Date: 2026-10-26 18:36+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -20,6 +22,12 @@ msgid "%(name)s (%(email)s) has sent the signed document."
 msgstr ""
 
 #. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "%s cannot change once the request is sent."
+msgstr ""
+
+#. module: sign_oca
 #: model:ir.actions.report,print_report_name:sign_oca.action_report_signature_certificate
 msgid "'Signature Certificate'"
 msgstr ""
@@ -29,6 +37,13 @@ msgstr ""
 msgid ""
 ")\n"
 "                has requested your signature on a document."
+msgstr ""
+
+#. module: sign_oca
+#: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_links
+msgid ""
+"<i class=\"fa fa-eye me-1\" role=\"img\" aria-hidden=\"true\"/>\n"
+"                View the document"
 msgstr ""
 
 #. module: sign_oca
@@ -489,6 +504,16 @@ msgid "Domain"
 msgstr ""
 
 #. module: sign_oca
+#: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_links
+msgid "Download the document"
+msgstr ""
+
+#. module: sign_oca
+#: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_links
+msgid "Download the signed document"
+msgstr ""
+
+#. module: sign_oca
 #: model:ir.model.fields.selection,name:sign_oca.selection__sign_oca_request__state__1_draft
 msgid "Draft"
 msgstr ""
@@ -526,6 +551,24 @@ msgstr ""
 #: code:addons/sign_oca/static/src/components/sign_oca_configure/sign_oca_configure_field_dialog.xml:0
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template_item__field_id
 msgid "Field"
+msgstr ""
+
+#. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Field %(name)s is longer than %(max)s characters."
+msgstr ""
+
+#. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Field %s does not hold a signature image."
+msgstr ""
+
+#. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Field %s has an invalid value"
 msgstr ""
 
 #. module: sign_oca
@@ -890,12 +933,6 @@ msgid "Next"
 msgstr ""
 
 #. module: sign_oca
-#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request__activity_calendar_event_id
-#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__activity_calendar_event_id
-msgid "Next Activity Calendar Event"
-msgstr ""
-
-#. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request__activity_date_deadline
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__activity_date_deadline
 msgid "Next Activity Deadline"
@@ -978,6 +1015,12 @@ msgid ""
 msgstr ""
 
 #. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Only the signature process may write %s."
+msgstr ""
+
+#. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template_item__page
 msgid "Page"
 msgstr ""
@@ -1027,13 +1070,6 @@ msgstr ""
 #. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template_item__position_y
 msgid "Position Y"
-msgstr ""
-
-#. module: sign_oca
-#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request__rating_ids
-#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_signer__rating_ids
-#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_template__rating_ids
-msgid "Ratings"
 msgstr ""
 
 #. module: sign_oca
@@ -1135,6 +1171,8 @@ msgid "Send to sign"
 msgstr ""
 
 #. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/controllers/main.py:0
 #: model:ir.model.fields.selection,name:sign_oca.selection__sign_oca_request__state__0_sent
 #: model_terms:ir.ui.view,arch_db:sign_oca.sign_oca_request_search_view
 msgid "Sent"
@@ -1371,6 +1409,18 @@ msgid "Signers"
 msgstr ""
 
 #. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Signers cannot be added to a sent request."
+msgstr ""
+
+#. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "Signers cannot be removed from a sent request."
+msgstr ""
+
+#. module: sign_oca
 #: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request__state
 #: model_terms:ir.ui.view,arch_db:sign_oca.sign_oca_request_search_view
 #: model_terms:ir.ui.view,arch_db:sign_oca.sign_requests
@@ -1424,6 +1474,12 @@ msgid "The signer related to the active user."
 msgstr ""
 
 #. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/models/sign_oca_request.py:0
+msgid "The state of %(name)s cannot be set to %(state)s."
+msgstr ""
+
+#. module: sign_oca
 #. odoo-javascript
 #: code:addons/sign_oca/static/src/components/sign_oca_configure/sign_oca_configure.xml:0
 msgid ""
@@ -1448,6 +1504,12 @@ msgid ""
 "This field is used to define how the partner will be calculated in the "
 "different roles of a request. This field will be used when the 'Sign from "
 "Template' action is triggered."
+msgstr ""
+
+#. module: sign_oca
+#. odoo-python
+#: code:addons/sign_oca/controllers/main.py:0
+msgid "This signature link is not valid."
 msgstr ""
 
 #. module: sign_oca
@@ -1485,6 +1547,11 @@ msgstr ""
 #. module: sign_oca
 #: model:ir.model,name:sign_oca.model_res_users
 msgid "User"
+msgstr ""
+
+#. module: sign_oca
+#: model:ir.model.fields,field_description:sign_oca.field_sign_oca_request_log__user_agent
+msgid "User Agent"
 msgstr ""
 
 #. module: sign_oca
@@ -1576,10 +1643,4 @@ msgstr ""
 #. module: sign_oca
 #: model_terms:ir.ui.view,arch_db:sign_oca.portal_sign_document_signed
 msgid "document"
-msgstr ""
-
-#. module: sign_oca
-#. odoo-python
-#: code:addons/sign_oca/controllers/main.py:0
-msgid "sent"
 msgstr ""
