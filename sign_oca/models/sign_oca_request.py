@@ -381,21 +381,41 @@ class SignOcaRequest(models.Model):
 
     def _set_action_log_vals(self, action, **kwargs):
         vals = kwargs.copy()
+        user = self._get_action_log_user()
         vals.update(
             {
                 "action": action,
                 "request_id": self.id,
+                "uid": user.id,
+                "partner_id": user.partner_id.id,
                 "ip": self._get_action_log_ip(),
                 "user_agent": self._get_action_log_user_agent(),
             }
         )
         return vals
 
+    def _get_action_log_user(self):
+        """Return the user who acts: the session user of the HTTP request (the
+        public user for an anonymous visitor), else the environment user.
+
+        The portal routes work on a superuser copy of the records, so the
+        environment user is not the visitor there.
+        """
+        if request and getattr(request, "env", None) is not None:
+            return request.env.user
+        return self.env.user
+
     def _get_action_log_ip(self):
+        """Return the address of the HTTP client, or ``0.0.0.0`` outside HTTP.
+
+        It is the peer address of the connection; behind a reverse proxy,
+        Odoo's ``proxy_mode`` replaces it with the client address the proxy
+        forwards. A forwarding header sent by the client itself is ignored.
+        """
         if not request or not hasattr(request, "httprequest"):
             # This comes from a server call. Set as localhost
             return "0.0.0.0"
-        return request.httprequest.access_route[-1]
+        return request.httprequest.remote_addr
 
     def _get_action_log_user_agent(self):
         """Return the User-Agent header of the HTTP request, cut to 512 chars.
