@@ -31,6 +31,14 @@ const signatureSignOca = {
             renderToString("sign_oca.sign_iframe_field_signature", {item: item})
         )[0];
         if (item.role_id === parent.info.role_id) {
+            // The box itself opens the dialog too: on a touch screen its tap
+            // area reaches a few pixels around it (o_sign_oca_field_tap).
+            signatureItem[0].classList.add("o_sign_oca_field_tap");
+            signatureItem[0].addEventListener("click", (ev) => {
+                if (ev.target === signatureItem[0]) {
+                    signatureItem[0].dispatchEvent(new Event("focus_signature"));
+                }
+            });
             signatureItem[0].addEventListener("focus_signature", () => {
                 var signatureOptions = {
                     nameAndSignatureProps: {fontColor: "DarkBlue"},
