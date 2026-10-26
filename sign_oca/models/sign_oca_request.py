@@ -311,7 +311,12 @@ class SignOcaRequest(models.Model):
     def _set_action_log_vals(self, action, **kwargs):
         vals = kwargs.copy()
         vals.update(
-            {"action": action, "request_id": self.id, "ip": self._get_action_log_ip()}
+            {
+                "action": action,
+                "request_id": self.id,
+                "ip": self._get_action_log_ip(),
+                "user_agent": self._get_action_log_user_agent(),
+            }
         )
         return vals
 
@@ -320,6 +325,15 @@ class SignOcaRequest(models.Model):
             # This comes from a server call. Set as localhost
             return "0.0.0.0"
         return request.httprequest.access_route[-1]
+
+    def _get_action_log_user_agent(self):
+        """Return the User-Agent header of the HTTP request, cut to 512 chars.
+
+        A call made outside an HTTP request has no browser and gets False.
+        """
+        if not request or not hasattr(request, "httprequest"):
+            return False
+        return (request.httprequest.user_agent.string or "")[:512] or False
 
     def _set_action_log(self, action, **kwargs):
         self.ensure_one()
@@ -714,3 +728,4 @@ class SignRequestLog(models.Model):
     )
     access_token = fields.Char()
     ip = fields.Char()
+    user_agent = fields.Char()

@@ -8,6 +8,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="ip" />
+                <field name="user_agent" />
                 <field name="partner_id" />
             </search>
         </field>
@@ -23,6 +24,8 @@
                 <field name="uid" readonly="1" />
                 <field name="partner_id" />
                 <field name="signer_id" />
+                <field name="ip" optional="show" />
+                <field name="user_agent" optional="show" />
             </list>
         </field>
     </record>
