@@ -39,6 +39,11 @@ export class SignOcaPdfPortal extends SignOcaPdf {
     postIframeFields() {
         super.postIframeFields(...arguments);
         this.checkFilledAll();
+        if (!this.info.role_id) {
+            // The signer cannot sign now: the document is read-only, without
+            // the navigator that leads through the fields.
+            return;
+        }
         // Is essential to make sure the navigator will never duplicate
         const target = $(
             this.iframe.el.contentDocument.getElementById("viewerContainer")

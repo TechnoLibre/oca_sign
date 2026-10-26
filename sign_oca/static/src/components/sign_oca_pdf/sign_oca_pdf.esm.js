@@ -110,7 +110,9 @@ export default class SignOcaPdf extends SignOcaPdfCommon {
         }
     }
     postIframeField(item) {
-        if (item.role_id === this.info.role_id) {
+        // A signer who cannot sign now gets no role (``role_id`` is false):
+        // the document is shown without any field.
+        if (this.info.role_id && item.role_id === this.info.role_id) {
             var signatureItem = super.postIframeField(...arguments);
             signatureItem[0].append(
                 SignRegistry.get(item.field_type).generate(this, item, signatureItem)
@@ -120,6 +122,7 @@ export default class SignOcaPdf extends SignOcaPdfCommon {
     }
     checkFilledAll() {
         this.to_sign_update =
+            Boolean(this.info.role_id) &&
             Object.values(this.info.items).filter((item) => {
                 return (
                     item.required &&
