@@ -94,6 +94,51 @@
     border-left: 25px solid rgba(var(--bs-primary-rgb), 1);
 }
 
+// Width of the margin left of the pages that holds the navigator.
+$o-sign-oca-navigator-gutter: 150px;
+
+@media (min-width: 768px) {
+    // The pages leave the navigator a margin of its own, so that it never
+    // covers what is printed at the left of a field's line.
+    .o_sign_oca_navigator_on {
+        // Without a transition, the viewer reads the final width of the
+        // pages when it scales them.
+        #viewerContainer:not(.pdfPresentationMode) {
+            inset-inline-start: $o-sign-oca-navigator-gutter;
+            transition-property: none;
+        }
+        #outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+            inset-inline-start: calc(
+                var(--sidebar-width) + #{$o-sign-oca-navigator-gutter}
+            );
+        }
+        .o_sign_sign_item_navigator {
+            display: flex;
+            align-items: center;
+            box-sizing: border-box;
+            width: $o-sign-oca-navigator-gutter - 35px;
+            padding: 0 4px 0 8px;
+            font-size: 0.8rem;
+            line-height: 1.15;
+            white-space: normal;
+            overflow-wrap: anywhere;
+        }
+        .o_sign_sign_item_navigator:after {
+            top: 0;
+            left: 100%;
+            margin-left: 0;
+        }
+    }
+}
+
+@media (max-width: 767px) {
+    // The navigator is a bar under the toolbar; the pages start below it.
+    .o_sign_oca_navigator_on #viewerContainer:not(.pdfPresentationMode) {
+        top: 72px;
+        transition-property: none;
+    }
+}
+
 @media (max-width: 767px) {
     /* @screen-xs-max */
     .o_sign_sign_item_navigator {

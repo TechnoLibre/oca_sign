@@ -1,5 +1,5 @@
 /** @odoo-module **/
-/* global window */
+/* global window, Event, setTimeout */
 
 import {App, useRef, whenReady} from "@odoo/owl";
 import {_t} from "@web/core/l10n/translation";
@@ -25,6 +25,40 @@ export class SignOcaPdfPortal extends SignOcaPdf {
     }
     getPdfUrl() {
         return "/sign_oca/content/" + this.signer_id + "/" + this.access_token;
+    }
+    waitIframeLoaded() {
+        // A signer who can sign gets the navigator, which sits in a margin
+        // left of the pages (``o_sign_oca_navigator_on`` in sign.scss). The
+        // margin is set, and its stylesheet loaded, before the fields are
+        // posted; the viewer then scales its pages again to fit it, since
+        // that re-layout would drop fields already posted in the pages.
+        if (this.info.role_id && !this.navigatorLayoutDone) {
+            const doc = this.iframe.el.contentDocument;
+            if (!this.navigatorLayout && doc && doc.getElementById("viewerContainer")) {
+                this.navigatorLayout = this.prepareNavigatorLayout(doc);
+            } else if (
+                this.navigatorLayoutReady &&
+                doc.getElementsByClassName("page").length
+            ) {
+                doc.defaultView.dispatchEvent(new Event("resize"));
+                this.navigatorLayoutDone = true;
+            }
+            setTimeout(() => this.waitIframeLoaded(), 50);
+            return;
+        }
+        return super.waitIframeLoaded(...arguments);
+    }
+    async prepareNavigatorLayout(doc) {
+        await new Promise((resolve) => {
+            const link = doc.createElement("link");
+            link.setAttribute("rel", "stylesheet");
+            link.setAttribute("href", "/sign_oca/get_assets.css");
+            link.addEventListener("load", resolve);
+            link.addEventListener("error", resolve);
+            doc.head.append(link);
+            doc.body.classList.add("o_sign_oca_navigator_on");
+        });
+        this.navigatorLayoutReady = true;
     }
     checkToSign() {
         this.to_sign = this.to_sign_update;

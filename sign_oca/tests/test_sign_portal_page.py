@@ -17,9 +17,10 @@ IFRAME_READY = (
 
 @tagged("post_install", "-at_install")
 class TestSignPortalPage(HttpCase):
-    """What the signing page shows, in a browser."""
+    """What the signing page shows, in a browser. The window is narrow
+    enough for the pages to fill the viewer's width."""
 
-    browser_size = "1366x768"
+    browser_size = "800x900"
 
     @classmethod
     def setUpClass(cls):
@@ -88,7 +89,7 @@ class TestSignPortalPage(HttpCase):
 
     def test_page_to_sign(self):
         """A signer who can sign gets the fields of their role and the
-        navigator."""
+        navigator, in a margin left of the pages that it does not cover."""
         self.request.action_send()
         self._open_page(
             """
@@ -96,8 +97,21 @@ class TestSignPortalPage(HttpCase):
             if (!doc.querySelector(".o_sign_oca_field")) {
                 throw new Error("The field of the signer does not show");
             }
-            if (!doc.querySelector(".o_sign_sign_item_navigator")) {
+            const navigator = doc.querySelector(".o_sign_sign_item_navigator");
+            if (!navigator) {
                 throw new Error("The navigator does not show");
+            }
+            const page = doc.querySelector(".page").getBoundingClientRect();
+            const arrow = doc.defaultView.getComputedStyle(navigator, ":after");
+            const right = navigator.getBoundingClientRect().right +
+                parseFloat(arrow.borderLeftWidth || 0);
+            if (right > page.left + 1) {
+                throw new Error(`The navigator (to ${right}px) covers the page ` +
+                    `(from ${page.left}px)`);
+            }
+            const container = doc.getElementById("viewerContainer");
+            if (container.scrollWidth > container.clientWidth + 1) {
+                throw new Error("The pages are wider than the viewer");
             }
             console.log("test successful");
             """
