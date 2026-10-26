@@ -92,3 +92,27 @@ class TestSignItemValues(BaseCommon):
     def test_empty_optional_signature_accepted(self):
         self._sign(False)
         self.assertTrue(self.signer.signed_on)
+
+    def test_true_is_no_signature(self):
+        """``true`` sent for a signature is no value: a required signature
+        stays to fill, an optional one is stored empty."""
+        data = self.request.signatory_data
+        data[str(self.signature["id"])]["required"] = True
+        self.request.sudo().signatory_data = data
+        with self.assertRaises(ValidationError):
+            self._sign(True)
+        self.assertFalse(self.signer.signed_on)
+        data[str(self.signature["id"])]["required"] = False
+        self.request.sudo().signatory_data = data
+        self._sign(True)
+        self.assertTrue(self.signer.signed_on)
+        stored = self.request.signatory_data[str(self.signature["id"])]
+        self.assertIs(stored["value"], False)
+
+    def test_blank_required_text_not_filled(self):
+        data = self.request.signatory_data
+        data[str(self.name_item["id"])]["required"] = True
+        self.request.sudo().signatory_data = data
+        with self.assertRaises(ValidationError):
+            self._sign(False, name="  \n\t ")
+        self.assertFalse(self.signer.signed_on)

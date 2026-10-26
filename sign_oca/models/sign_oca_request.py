@@ -797,6 +797,9 @@ class SignOcaRequestSigner(models.Model):
         :return: dict ``{key: item}`` keyed like ``request.signatory_data``
         :raise ValidationError: when a value is not a string, number or bool
 
+        A bool is the value of a ``check`` item only: on any other item it
+        counts as no value, so ``true`` never fills a required signature.
+
         Override to set a value computed by the server, after ``super()``.
         ``action_sign`` calls it once ``signed_on`` is set.
         """
@@ -811,14 +814,20 @@ class SignOcaRequestSigner(models.Model):
                 raise ValidationError(
                     self.env._("Field %s has an invalid value") % definition["name"]
                 )
+            if isinstance(value, bool) and definition.get("field_type") != "check":
+                value = False
             role_items[key] = dict(definition, value=value)
         return role_items
 
     def _check_signable(self, item):
+        """Raise when ``item`` cannot be signed: its value is refused by
+        ``_check_item_value``, or it is required and empty. A text made of
+        blanks only counts as empty."""
         self._check_item_value(item)
         if not item["required"]:
             return
-        if not item["value"]:
+        value = item["value"]
+        if not value or (isinstance(value, str) and not value.strip()):
             raise ValidationError(self.env._("Field %s is not filled") % item["name"])
 
     def _check_item_value(self, item):
