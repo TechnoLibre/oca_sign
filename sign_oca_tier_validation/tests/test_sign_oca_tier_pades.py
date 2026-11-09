@@ -116,8 +116,8 @@ class TestSignOcaTierPades(SignOcaTierMixin, CommonTierValidation):
 
     def test_bypassed_tier_seal_and_certificate(self):
         """A tier approved by bypass is sealed with its status and stamped
-        name as reason, and the certificate lists it as approved without a
-        signature, not as pending."""
+        name as reason, and the certificate lists it as signed with the tier
+        whose signature it carries, not as pending."""
         definition_3 = self._bypass_definition(self.reviewer_1)
         record, sign_request = self._start()
         signer_1 = self._signer(sign_request, self.definition_1)
@@ -143,8 +143,16 @@ class TestSignOcaTierPades(SignOcaTierMixin, CommonTierValidation):
             reasons[1],
         )
         values = self.env["sign.oca.pades.certificate"]._get_values(sign_request)
+        self.assertEqual(values["signer_status"][signer_3.id], "Signed with level 1")
+        # The bypassed tier is listed among the decisions, at the time and
+        # from the address of the signature that approved it.
+        rows = {row["signer"]: row for row in values["decisions"]}
+        self.assertIn(signer_3, rows)
+        self.assertEqual(rows[signer_3]["date"], rows[signer_1]["date"])
+        certificate = self.env["sign.oca.pades.certificate"]
         self.assertEqual(
-            values["signer_status"][signer_3.id], "Approved without signature"
+            certificate._get_decision_log(sign_request, signer_3),
+            certificate._get_decision_log(sign_request, signer_1),
         )
         self.assertEqual(values["signer_counts"]["approved"], 1)
         self.assertEqual(values["signer_counts"]["pending"], 0)

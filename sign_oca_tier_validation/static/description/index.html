@@ -435,7 +435,10 @@ Tier Definition</em>), the <em>Sign Role</em> field gives the role its reviewers
 sign as. It is created with the tier’s name when a first document is
 sent; it can be set beforehand to reuse an existing role.</li>
 <li>A tier whose definition has <em>Comment</em> checked requires the comment
-field of the document to be filled in to sign.</li>
+field of the document to be filled in to sign. The rule is the one
+the record’s <em>Validate</em> button applies (<tt class="docutils literal">has_comment</tt>): a signature
+asks for a comment when any tier still to decide by the same reviewer
+asks for one, such as a later tier approved by bypass.</li>
 </ul>
 </div>
 <div class="section" id="usage">
@@ -458,10 +461,14 @@ is open, the <em>Validate</em> and <em>Reject</em> buttons of the record refuse 
 decide: the tiers are decided in the document.</li>
 <li>A tier whose definition has <em>Approve Sequence Bypass</em> is approved
 along with an earlier tier signed by one of its reviewers, as
-<tt class="docutils literal">base_tier_validation</tt> does from the record. It needs no signature:
-the document gets the reviewer’s name, the date and the status
-<em>Approved (same reviewer)</em>, its signature and comment stay empty, and
-the request completes without it.</li>
+<tt class="docutils literal">base_tier_validation</tt> does from the record. It needs no signature
+of its own: the document gets the reviewer’s name, the date, the
+status <em>Approved (same reviewer)</em> and the signature drawn on the
+signed tier, and the request completes without it. The comment goes
+on the last tier of the series, as the comment wizard writes it on
+the last review; the earlier tiers’ comment field reads <em>↓ See the
+note of level N ↓</em>. With <tt class="docutils literal">sign_oca_pades</tt>, the certificate lists
+such a tier as <em>Signed with level N</em>.</li>
 <li>Once signed, the page of the signer links to the document, to download
 or view.</li>
 </ul>
@@ -562,7 +569,12 @@ returns the values the server writes;
 <li><tt class="docutils literal">sign.oca.request._sign_oca_tier_done_signers()</tt> returns the signers
 whose tier is done: signed, or approved by bypass (<tt class="docutils literal">tier_bypassed</tt>).
 <tt class="docutils literal">sign.oca.request.signer._sign_oca_tier_bypass_reviews(user)</tt>
-returns the reviews an approval by <tt class="docutils literal">user</tt> approves too.</li>
+returns the reviews an approval by <tt class="docutils literal">user</tt> approves too,
+<tt class="docutils literal">_sign_oca_tier_series_reviews(user)</tt> the whole series by sequence,
+and <tt class="docutils literal">_sign_oca_tier_comment_required(user)</tt> whether the signature
+needs a comment. <tt class="docutils literal">sign.oca.request._sign_oca_tier_comment_of(review)</tt>
+returns the comment shown for a tier, or the note pointing to the tier
+that holds it (<tt class="docutils literal">_sign_oca_tier_note</tt>).</li>
 <li>A decision stamped without a signature (a refusal, a tier approved by
 bypass) passes its status and stamped name in the context key
 <tt class="docutils literal">sign_oca_stamp_reason</tt>; with <tt class="docutils literal">sign_oca_pades</tt>, the seal of that

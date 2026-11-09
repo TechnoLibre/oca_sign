@@ -558,29 +558,45 @@ class TestSignOcaTierValidation(SignOcaTierMixin, CommonTierValidation):
         }
         self.assertEqual(counts.get(self.test_model._name), 1)
 
-    def test_bypass_tier_needs_no_signature(self):
+    def test_bypass_tier_carries_the_signature(self):
         """Signing a tier also approves the bypass tiers of the same
-        reviewer, as base_tier_validation does from the record: their
-        signer is done without a signature, and stamped as such."""
+        reviewer, as base_tier_validation does from the record: their signer
+        carries the same signature, stamped with their status, and the
+        comment goes to the last tier of the series, the earlier one
+        pointing to it."""
         definition_3 = self._bypass_definition(self.reviewer_1)
         record, sign_request = self._start()
         signer_1 = self._signer(sign_request, self.definition_1)
         signer_2 = self._signer(sign_request, self.definition_2)
         signer_3 = self._signer(sign_request, definition_3)
+        review_1 = signer_1.tier_review_id
         review_3 = signer_3.tier_review_id
         self.assertEqual(review_3.sequence, 3)
         self._sign(signer_1, self.reviewer_1, comment="Fine")
         self.assertEqual(review_3.status, "approved")
         self.assertEqual(review_3.done_by, self.reviewer_1)
         self.assertTrue(signer_3.tier_bypassed)
+        self.assertEqual(signer_3.tier_bypassed_by_id, signer_1)
         self.assertFalse(signer_3.signed_on)
         self.assertEqual(signer_3.partner_id, self.reviewer_1.partner_id)
         values = self._role_values(signer_3)
         self.assertEqual(values["name"], "First Reviewer (sign_tier_reviewer_1)")
         self.assertEqual(values["status"], "Approved (same reviewer)")
         self.assertRegex(values["date"], r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$")
-        self.assertFalse(values["signature"])
-        self.assertFalse(values["comment"])
+        self.assertEqual(values["signature"], self._role_values(signer_1)["signature"])
+        # The comment is written once, on the last tier of the series, as
+        # base_tier_validation's comment wizard does.
+        self.assertEqual(values["comment"], "Fine")
+        self.assertEqual(review_3.comment, "Fine")
+        self.assertFalse(review_1.comment)
+        self.assertEqual(signer_1.tier_comment, "Fine")
+        self.assertEqual(
+            self._role_values(signer_1)["comment"], "↓ See the note of level 3 ↓"
+        )
+        self.assertEqual(
+            sign_request._sign_oca_tier_comment_of(review_1),
+            "↓ See the note of level 3 ↓",
+        )
         self.assertFalse(signer_3.with_user(self.reviewer_1).sudo()._can_sign())
         # Nothing is left to sign for the reviewer: the systray counts none.
         counts = {
@@ -590,15 +606,74 @@ class TestSignOcaTierValidation(SignOcaTierMixin, CommonTierValidation):
             .sign_oca_request_user_count()
         }
         self.assertFalse(counts.get(self.test_model._name))
-        # The second tier still has to sign; then the request completes
-        # without a signature on the third.
+        # The second tier still has to sign; then the request completes.
         self.assertEqual(sign_request.state, "0_sent")
         html = str(signer_3._sign_oca_tier_render_steps(self.reviewer_1))
         self.assertIn("Approved (same reviewer)", html)
-        self.assertIn("without a signature of its own", html)
+        self.assertIn("with the same signature", html)
+        self.assertIn("See the note of level 3", html)
         self._sign(signer_2, self.reviewer_2, comment="Agreed")
         self.assertEqual(record.validation_status, "validated")
         self.assertEqual(sign_request.state, "2_signed")
+
+    def test_series_without_comment_has_no_note(self):
+        """Without a comment, no tier of the series gets the note."""
+        definition_3 = self._bypass_definition(self.reviewer_1)
+        _record, sign_request = self._start()
+        signer_1 = self._signer(sign_request, self.definition_1)
+        signer_3 = self._signer(sign_request, definition_3)
+        self._sign(signer_1, self.reviewer_1)
+        self.assertFalse(self._role_values(signer_1)["comment"])
+        self.assertFalse(self._role_values(signer_3)["comment"])
+        self.assertEqual(
+            self._role_values(signer_3)["signature"],
+            self._role_values(signer_1)["signature"],
+        )
+
+    def test_comment_rule_and_place_match_the_back_office(self):
+        """The signing page asks for a comment by the rule of the back
+        office (``has_comment`` of the record for the user) and writes it
+        on the same review as the comment wizard: a later bypass tier that
+        asks for a comment makes it required on the first tier's
+        signature, and receives it."""
+        definition_3 = self._bypass_definition(self.reviewer_1)
+        definition_3.has_comment = True
+        # Back office, on a record without signature request.
+        web = self.test_model.with_user(self.requester).create({"test_field": 2.5})
+        web.request_validation()
+        web.invalidate_recordset()
+        web_user = web.with_user(self.reviewer_1)
+        self.assertTrue(web_user.has_comment)
+        action = web_user.validate_tier()
+        self.env["comment.wizard"].with_user(self.reviewer_1).with_context(
+            **action["context"]
+        ).create({"comment": "Checked"}).add_comment()
+        # Signing page, on the same configuration.
+        record, sign_request = self._start()
+        signer_1 = self._signer(sign_request, self.definition_1)
+        self.assertFalse(self.definition_1.has_comment)
+        self.assertTrue(signer_1._sign_oca_tier_comment_required(self.reviewer_1))
+        info = signer_1.with_user(self.reviewer_1).sudo().get_info()
+        required = [
+            item["required"]
+            for item in info["items"].values()
+            if item.get("tier_item") == "comment"
+            and item["role_id"] == signer_1.role_id.id
+        ]
+        self.assertEqual(required, [True])
+        with self.assertRaises(ValidationError):
+            self._sign(signer_1, self.reviewer_1)
+        self._sign(signer_1, self.reviewer_1, comment="Checked")
+
+        def comments(rec):
+            return {
+                review.definition_id: review.comment or False
+                for review in rec.sudo().review_ids
+            }
+
+        self.assertEqual(comments(record), comments(web))
+        self.assertEqual(comments(record)[definition_3], "Checked")
+        self.assertFalse(comments(record)[self.definition_1])
 
     def test_bypass_tier_completes_request(self):
         """A bypass tier left last completes the request when the signature
@@ -631,7 +706,78 @@ class TestSignOcaTierValidation(SignOcaTierMixin, CommonTierValidation):
         self._sign(self._signer(sign_request, self.definition_1), self.reviewer_1)
         signer_3 = self._signer(sign_request, definition_3)
         self.assertFalse(signer_3.tier_bypassed)
-        self.assertEqual(signer_3.tier_review_id.status, "waiting")
+        self.assertNotEqual(signer_3.tier_review_id.status, "approved")
+
+    def _statuses(self, record):
+        return [
+            (review.sequence, review.status)
+            for review in record.sudo().review_ids.sorted("sequence")
+        ]
+
+    def test_series_stops_at_another_reviewers_bypass_tier(self):
+        """The signature approves the reviews ``validate_tier`` approves from
+        the back office: the series stops at a bypass tier of another
+        reviewer, and the later tier of the signer waits."""
+        self.definition_2.approve_sequence_bypass = True
+        definition_3 = self._bypass_definition(self.reviewer_1)
+        web = self.test_model.with_user(self.requester).create({"test_field": 2.5})
+        web.request_validation()
+        web.invalidate_recordset()
+        web.with_user(self.reviewer_1).validate_tier()
+        record, sign_request = self._start()
+        signer_1 = self._signer(sign_request, self.definition_1)
+        self.assertEqual(
+            signer_1._sign_oca_tier_series_reviews(self.reviewer_1),
+            signer_1.tier_review_id,
+        )
+        self._sign(signer_1, self.reviewer_1, comment="First")
+        self.assertEqual(self._statuses(record), self._statuses(web))
+        self.assertEqual(self._statuses(record)[0], (1, "approved"))
+        self.assertNotEqual(self._statuses(record)[2][1], "approved")
+        signer_3 = self._signer(sign_request, definition_3)
+        self.assertFalse(signer_3.tier_bypassed)
+        # Alone in its series, the signed tier keeps its comment.
+        self.assertEqual(self._role_values(signer_1)["comment"], "First")
+        self.assertEqual(signer_1.tier_review_id.comment, "First")
+
+    def _drop_items(self, sign_request, signer, kind):
+        """Remove ``signer``'s fields of ``kind``, as in a document printing
+        no such anchor for its tier."""
+        data = sign_request.signatory_data
+        for key in [
+            key
+            for key, item in data.items()
+            if item["role_id"] == signer.role_id.id
+            and sign_request._sign_oca_tier_item_kind(item) == kind
+        ]:
+            del data[key]
+        sign_request.signatory_data = data
+
+    def test_comment_stays_on_the_signed_tier_when_the_last_has_no_field(self):
+        """The note points to a tier only when that tier has a comment field:
+        otherwise the comment stays in the signed tier's field."""
+        definition_3 = self._bypass_definition(self.reviewer_1)
+        _record, sign_request = self._start()
+        signer_1 = self._signer(sign_request, self.definition_1)
+        signer_3 = self._signer(sign_request, definition_3)
+        self._drop_items(sign_request, signer_3, "comment")
+        self._sign(signer_1, self.reviewer_1, comment="Important remark")
+        self.assertEqual(self._role_values(signer_1)["comment"], "Important remark")
+        self.assertNotIn("comment", self._role_values(signer_3))
+        # The review keeps base_tier_validation's place: the last one.
+        self.assertEqual(signer_3.tier_review_id.comment, "Important remark")
+
+    def test_comment_of_another_tier_never_blocks_a_tier_without_field(self):
+        """A later tier asking for a comment makes the comment required only
+        where the signer can type it: a tier without comment field, which
+        does not ask for one itself, signs without."""
+        definition_3 = self._bypass_definition(self.reviewer_1)
+        definition_3.has_comment = True
+        record, sign_request = self._start()
+        signer_1 = self._signer(sign_request, self.definition_1)
+        self._drop_items(sign_request, signer_1, "comment")
+        self._sign(signer_1, self.reviewer_1)
+        self.assertEqual(signer_1.tier_review_id.status, "approved")
 
     def test_steps_intro(self):
         """The line under the panel title gives the order of the tiers to

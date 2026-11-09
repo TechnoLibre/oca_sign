@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 18.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 20:40+0000\n"
-"PO-Revision-Date: 2026-10-26 20:40+0000\n"
+"POT-Creation-Date: 2026-11-09 10:53+0000\n"
+"PO-Revision-Date: 2026-11-09 10:53+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -52,6 +52,17 @@ msgid "Approved by Bypass"
 msgstr ""
 
 #. module: sign_oca_tier_validation
+#: model:ir.model.fields,field_description:sign_oca_tier_validation.field_sign_oca_request_signer__tier_bypassed_by_id
+msgid "Approved with"
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#. odoo-python
+#: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
+msgid "Approved without signature"
+msgstr ""
+
+#. module: sign_oca_tier_validation
 #. odoo-python
 #: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
 msgid "Awaiting signature"
@@ -61,6 +72,11 @@ msgstr ""
 #. odoo-python
 #: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
 msgid "Comment"
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#: model:ir.model.fields,field_description:sign_oca_tier_validation.field_sign_oca_request_signer__tier_comment
+msgid "Comment as Given"
 msgstr ""
 
 #. module: sign_oca_tier_validation
@@ -119,7 +135,6 @@ msgid "Sign Request"
 msgstr ""
 
 #. module: sign_oca_tier_validation
-#: model:ir.model.fields,field_description:sign_oca_tier_validation.field_helpdesk_ticket__sign_oca_request_count
 #: model:ir.model.fields,field_description:sign_oca_tier_validation.field_tier_validation__sign_oca_request_count
 msgid "Sign Request Count"
 msgstr ""
@@ -130,7 +145,6 @@ msgid "Sign Request Value"
 msgstr ""
 
 #. module: sign_oca_tier_validation
-#: model:ir.model.fields,field_description:sign_oca_tier_validation.field_helpdesk_ticket__sign_oca_request_ids
 #: model:ir.model.fields,field_description:sign_oca_tier_validation.field_tier_validation__sign_oca_request_ids
 msgid "Sign Requests"
 msgstr ""
@@ -154,12 +168,31 @@ msgstr ""
 #. module: sign_oca_tier_validation
 #. odoo-python
 #: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
+msgid "Signed with level %(level)s"
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#: model:ir.model.fields,help:sign_oca_tier_validation.field_sign_oca_request_signer__tier_comment
+msgid ""
+"The comment given with this signer's signature. When the signature approves "
+"later tiers too, it is printed on the last of them, and this tier's comment "
+"field points to it."
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#. odoo-python
+#: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
 msgid "The decision and comment of each tier."
 msgstr ""
 
 #. module: sign_oca_tier_validation
 #: model:ir.model.fields,help:sign_oca_tier_validation.field_sign_oca_request_signer__tier_notified
 msgid "The reviewers of this tier got the email inviting them to sign."
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#: model:ir.model.fields,help:sign_oca_tier_validation.field_sign_oca_request_signer__tier_bypassed_by_id
+msgid "The signer whose signature approved this tier along with its own."
 msgstr ""
 
 #. module: sign_oca_tier_validation
@@ -183,9 +216,9 @@ msgstr ""
 #. module: sign_oca_tier_validation
 #: model:ir.model.fields,help:sign_oca_tier_validation.field_sign_oca_request_signer__tier_bypassed
 msgid ""
-"The tier was approved along with an earlier tier signed by the same reviewer"
-" (Approve Sequence Bypass of its tier definition): it needs no signature of "
-"its own."
+"The tier was approved along with another tier signed by the same reviewer "
+"(Approve Sequence Bypass of its tier definition): it carries that signature,"
+" and signs nothing of its own."
 msgstr ""
 
 #. module: sign_oca_tier_validation
@@ -268,8 +301,8 @@ msgstr ""
 #. odoo-python
 #: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
 msgid ""
-"This tier is approved along with an earlier tier of the same reviewer, "
-"without a signature of its own."
+"This tier is approved along with another tier of the same reviewer, with the"
+" same signature."
 msgstr ""
 
 #. module: sign_oca_tier_validation
@@ -391,4 +424,10 @@ msgstr ""
 #. odoo-python
 #: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
 msgid "same reviewer"
+msgstr ""
+
+#. module: sign_oca_tier_validation
+#. odoo-python
+#: code:addons/sign_oca_tier_validation/models/sign_oca_request.py:0
+msgid "↓ See the note of level %(level)s ↓"
 msgstr ""

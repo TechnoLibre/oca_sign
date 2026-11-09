@@ -319,6 +319,28 @@ class SignOcaRequest(models.Model):
                 email_layout_xmlid="mail.mail_notification_light",
             )
 
+    def _sign_oca_tier_comment_of(self, review):
+        """Return the comment shown for ``review``'s tier: its own, or, for
+        a tier signed along with a later tier that holds the comment, the
+        note pointing to that tier (``_sign_oca_tier_note``); else ''.
+
+        A signature that approves several tiers keeps its comment on the
+        last of them only, as base_tier_validation does.
+        """
+        self.ensure_one()
+        if review.comment:
+            return review.comment
+        signers = self.sudo().signer_ids
+        signer = signers.filtered(lambda s: s.tier_review_id == review)[:1]
+        head = signer.tier_bypassed_by_id or signer
+        if not head:
+            return ""
+        series = head | signers.filtered(lambda s: s.tier_bypassed_by_id == head)
+        last = series.tier_review_id.sorted("sequence")[-1:]
+        if last and last != review and last.comment:
+            return signer._sign_oca_tier_note(last.sequence)
+        return ""
+
 
 class SignOcaRequestSigner(models.Model):
     _inherit = "sign.oca.request.signer"
@@ -339,9 +361,25 @@ class SignOcaRequestSigner(models.Model):
         string="Approved by Bypass",
         readonly=True,
         copy=False,
-        help="The tier was approved along with an earlier tier signed by the "
+        help="The tier was approved along with another tier signed by the "
         "same reviewer (Approve Sequence Bypass of its tier definition): it "
-        "needs no signature of its own.",
+        "carries that signature, and signs nothing of its own.",
+    )
+    tier_bypassed_by_id = fields.Many2one(
+        comodel_name="sign.oca.request.signer",
+        string="Approved with",
+        readonly=True,
+        copy=False,
+        ondelete="set null",
+        help="The signer whose signature approved this tier along with its own.",
+    )
+    tier_comment = fields.Text(
+        string="Comment as Given",
+        readonly=True,
+        copy=False,
+        help="The comment given with this signer's signature. When the "
+        "signature approves later tiers too, it is printed on the last of "
+        "them, and this tier's comment field points to it.",
     )
 
     def _get_server_fields(self):
@@ -351,6 +389,8 @@ class SignOcaRequestSigner(models.Model):
             "tier_review_id",
             "tier_notified",
             "tier_bypassed",
+            "tier_bypassed_by_id",
+            "tier_comment",
         }
 
     # ------------------------------------------------------------------
@@ -573,7 +613,14 @@ class SignOcaRequestSigner(models.Model):
                 value = item["value"]
                 item["value"] = value.strip() if isinstance(value, str) else False
                 comment = comment or item["value"]
-        if self.sudo().tier_review_id.has_comment and not comment:
+        # Without a comment field, only a tier that asks for a comment itself
+        # can require one: the signer has nowhere to type it.
+        required = (
+            self._sign_oca_tier_comment_required(user)
+            if has_comment_item
+            else self.sudo().tier_review_id.has_comment
+        )
+        if required and not comment:
             if has_comment_item:
                 raise ValidationError(
                     self.env._("This tier asks for a comment with the signature.")
@@ -584,16 +631,111 @@ class SignOcaRequestSigner(models.Model):
                     "comment field for it."
                 )
             )
+        self.sudo().tier_comment = comment or False
+        holder = self._sign_oca_tier_comment_holder(
+            self._sign_oca_tier_series_reviews(user)
+        )
+        if comment and holder != self.sudo().tier_review_id:
+            note = self._sign_oca_tier_with_document_lang(user)._sign_oca_tier_note(
+                holder.sequence
+            )
+            for item in role_items.values():
+                if self.request_id._sign_oca_tier_item_kind(item) == "comment":
+                    item["value"] = note
         return role_items
 
+    def _sign_oca_tier_series_reviews(self, user):
+        """Return the reviews ``user``'s signature of this signer's tier
+        approves, by sequence.
+
+        ``_validate_tier`` receives this signer's review with
+        ``_sign_oca_tier_bypass_reviews``, as from ``validate_tier``: it
+        makes them pending, then approves them by sequence while ``user``
+        reviews them, and stops at the first one of another reviewer. The
+        same walk gives the series before the decision. base_tier_validation
+        writes the comment of the decision on the last review of the series
+        only (comment wizard).
+        """
+        self.ensure_one()
+        review = self.sudo().tier_review_id
+        candidates = review | self._sign_oca_tier_bypass_reviews(user)
+        series = review.browse()
+        for candidate in candidates.sorted("sequence"):
+            if user not in candidate.reviewer_ids:
+                break
+            series |= candidate
+        return series
+
+    def _sign_oca_tier_comment_holder(self, series):
+        """Return the review of ``series`` whose field holds the comment in
+        the document: the last one whose signer has a comment field, else
+        this signer's review."""
+        self.ensure_one()
+        signers = self.sudo().request_id.signer_ids
+        for review in series.sorted("sequence", reverse=True):
+            signer = signers.filtered(lambda s, r=review: s.tier_review_id == r)
+            if signer[:1]._sign_oca_tier_has_kind("comment"):
+                return review
+        return self.sudo().tier_review_id
+
+    def _sign_oca_tier_has_kind(self, kind):
+        """Return whether this signer's role has a field of ``kind`` in the
+        document."""
+        sign_request = self.sudo().request_id
+        return any(
+            item.get("role_id") == self.role_id.id
+            and sign_request._sign_oca_tier_item_kind(item) == kind
+            for item in sign_request.signatory_data.values()
+        )
+
+    def _sign_oca_tier_comment_required(self, user):
+        """Return whether ``user``'s signature of this tier needs a comment.
+
+        The rule is base_tier_validation's ``has_comment`` of the record,
+        computed for ``user``: a pending or waiting tier of ``user`` asks for
+        a comment. The back office asks for a comment by the same rule
+        before the same decision.
+        """
+        self.ensure_one()
+        review = self.sudo().tier_review_id
+        record = review and review._sign_oca_get_record()
+        if not record:
+            return False
+        record = record.with_user(user).sudo()
+        # has_comment depends on the user without saying so: a value cached
+        # for another user would be read back.
+        record.invalidate_recordset(["has_comment"])
+        return bool(record.has_comment)
+
+    def _sign_oca_tier_with_document_lang(self, user):
+        """Return this signer in the language the document is stamped in:
+        the company's, else ``user``'s."""
+        lang = self._sign_oca_tier_get_company().partner_id.lang or user.lang
+        return self.with_context(lang=lang)
+
+    def _sign_oca_tier_note(self, level):
+        """Return the text of the comment field of a tier signed along with
+        a later tier: the comment is on that later tier, ``level``, below.
+
+        Hook. In the language of the environment.
+        """
+        return self.env._("↓ See the note of level %(level)s ↓", level=level)
+
     def _sign_oca_tier_get_comment(self):
-        """Return the comment this signer wrote in the document, or False."""
+        """Return the comment this signer gave with the signature, or False:
+        ``tier_comment``, else the value of its comment field."""
+        self.ensure_one()
+        return self.sudo().tier_comment or self._sign_oca_tier_get_value("comment")
+
+    def _sign_oca_tier_get_value(self, kind):
+        """Return the value of this signer's field of ``kind`` in the
+        document, or False."""
         self.ensure_one()
         sign_request = self.request_id
         for item in sign_request.signatory_data.values():
             if (
                 item.get("role_id") == self.role_id.id
-                and sign_request._sign_oca_tier_item_kind(item) == "comment"
+                and sign_request._sign_oca_tier_item_kind(item) == kind
                 and item.get("value")
             ):
                 return item["value"]
@@ -613,6 +755,10 @@ class SignOcaRequestSigner(models.Model):
         ``_sign_oca_tier_bypass_reviews`` gives, as ``validate_tier`` does,
         and ``_sign_oca_tier_apply_bypass`` marks their signers.
 
+        An approval writes the comment on the last review it decides, as the
+        comment wizard does since base_tier_validation writes it once per
+        decision.
+
         :param str decision: ``approved`` or ``rejected``
         :param str comment: the comment of the review, or False
         :raise UserError: when the review does not end with ``decision``
@@ -622,13 +768,16 @@ class SignOcaRequestSigner(models.Model):
         review = self.sudo().tier_review_id
         record = review._sign_oca_get_record().with_user(user).sudo()
         review = review.with_env(record.env)
-        if comment:
-            review.comment = comment
-        bypassed = review.browse()
+        series = review.browse()
         if decision == "approved":
-            bypassed = self._sign_oca_tier_bypass_reviews(user).with_env(record.env)
-            record._validate_tier(review | bypassed)
+            series = self._sign_oca_tier_series_reviews(user).with_env(record.env)
+            if comment and series:
+                series[-1].comment = comment
+            candidates = self._sign_oca_tier_bypass_reviews(user)
+            record._validate_tier(review | candidates.with_env(record.env))
         else:
+            if comment:
+                review.comment = comment
             record._rejected_tier(review)
         record._update_counter({"review_deleted": True})
         if review.status != decision:
@@ -638,46 +787,58 @@ class SignOcaRequestSigner(models.Model):
                     tier=review.name or review.sequence,
                 )
             )
-        bypassed = bypassed.filtered(lambda r: r.status == "approved")
+        bypassed = (series - review).filtered(lambda r: r.status == "approved")
         if bypassed:
-            self._sign_oca_tier_apply_bypass(bypassed, user)
+            self._sign_oca_tier_apply_bypass(bypassed, user, comment=comment)
 
     def _sign_oca_tier_bypass_reviews(self, user):
-        """Return the reviews that approving this signer's tier approves too,
-        as superuser.
-
-        base_tier_validation's ``validate_tier`` approves, with the user's
-        tier, every review whose definition has ``approve_sequence_bypass``
-        and that the user reviews, whatever its sequence. The same reviews
-        are returned here, those still to decide (waiting or pending): a
-        decided review keeps its decision.
+        """Return the reviews, other than this signer's, that
+        base_tier_validation's ``validate_tier`` gives ``_validate_tier``
+        with it when ``user`` approves, as superuser: those of the sequences
+        ``_get_sequences_to_approve`` gives ``user``, and every review with
+        ``approve_sequence_bypass``, whoever reviews it, still to decide
+        (waiting or pending). ``_sign_oca_tier_series_reviews`` returns
+        those it approves.
 
         :param user: the ``res.users`` approving this signer's tier
         """
         self.ensure_one()
         review = self.sudo().tier_review_id
         record = review._sign_oca_get_record().sudo()
+        sequences = record._get_sequences_to_approve(user)
         return record.review_ids.filtered(
             lambda r: r != review
-            and r.approve_sequence_bypass
             and r.status in ("waiting", "pending")
-            and user in r.reviewer_ids
+            and (r.sequence in sequences or r.approve_sequence_bypass)
         )
 
-    def _sign_oca_tier_apply_bypass(self, reviews, user):
+    def _sign_oca_tier_apply_bypass(self, reviews, user, comment=False):
         """Mark the signers of ``reviews``, approved along with this
-        signer's tier, as done without a signature (``tier_bypassed``).
+        signer's tier, as approved with its signature (``tier_bypassed``,
+        ``tier_bypassed_by_id``).
 
-        ``user``'s contact takes each of their roles, and their name, date
-        and status fields are stamped in the document like a decision, the
-        status followed by ``_sign_oca_tier_bypass_label``; their signature
-        and comment fields stay empty, as nobody signed them.
+        ``user``'s contact takes each of their roles, and their fields are
+        stamped in the document like a decision: name, date, the status
+        followed by ``_sign_oca_tier_bypass_label``, and this signer's
+        signature image. ``comment`` goes in the comment field of the last
+        tier of the series that has one (``_sign_oca_tier_comment_holder``);
+        an earlier tier gets ``_sign_oca_tier_note``, pointing to it.
 
         :param reviews: ``tier.review`` records approved by bypass
         :param user: the ``res.users`` whose approval bypassed them
+        :param str comment: the comment given with the signature, or False
         """
         self.ensure_one()
         moment = fields.Datetime.now()
+        signature = self._sign_oca_tier_get_value("signature") or None
+        holder = self._sign_oca_tier_comment_holder(
+            self.sudo().tier_review_id | reviews
+        )
+        note = None
+        if comment:
+            note = self._sign_oca_tier_with_document_lang(user)._sign_oca_tier_note(
+                holder.sequence
+            )
         signers = self.sudo().request_id.signer_ids.filtered(
             lambda s: s.tier_review_id in reviews
             and not s.signed_on
@@ -686,8 +847,61 @@ class SignOcaRequestSigner(models.Model):
         )
         for signer in signers:
             signer._sign_oca_tier_take_role(user)
-            signer._sign_oca_tier_stamp_decision(user, "bypassed", moment)
-            signer.write({"tier_bypassed": True, "tier_notified": True})
+            signer._sign_oca_tier_stamp_decision(
+                user,
+                "bypassed",
+                moment,
+                comment=(
+                    comment
+                    if signer.tier_review_id == holder
+                    else note
+                    if signer.tier_review_id.sequence < holder.sequence
+                    else None
+                )
+                or None,
+                signature=signature,
+            )
+            signer.write(
+                {
+                    "tier_bypassed": True,
+                    "tier_bypassed_by_id": self.id,
+                    "tier_notified": True,
+                }
+            )
+
+    def _pades_approved_on(self):
+        """Return when this signer's tier was approved without a signature
+        of its own: when the signer whose signature approved it signed, or
+        False.
+
+        Hook of sign_oca_pades (``_get_approved_on``).
+        """
+        self.ensure_one()
+        return self.sudo().tier_bypassed_by_id.signed_on or False
+
+    def _pades_decision_signer(self):
+        """Return the signer whose decision approved this signer's tier: the
+        one whose signature it carries, else this signer.
+
+        Hook of sign_oca_pades (``_get_decision_log``).
+        """
+        self.ensure_one()
+        return self.sudo().tier_bypassed_by_id or self
+
+    def _pades_approved_label(self):
+        """Return the status sign_oca_pades' certificate gives this signer
+        when it is approved without a signature of its own: the tier whose
+        signature it carries.
+
+        Hook of sign_oca_pades (``_get_approved_without_signature_label``).
+        """
+        self.ensure_one()
+        head = self.sudo().tier_bypassed_by_id
+        if head.tier_review_id:
+            return self.env._(
+                "Signed with level %(level)s", level=head.tier_review_id.sequence
+            )
+        return self.env._("Approved without signature")
 
     def _sign_oca_tier_bypass_label(self):
         """Return the note added to the status of a tier approved by bypass,
@@ -743,10 +957,12 @@ class SignOcaRequestSigner(models.Model):
             user, "rejected", self.refused_on, comment=reason
         )
 
-    def _sign_oca_tier_stamp_decision(self, user, decision, moment, comment=None):
+    def _sign_oca_tier_stamp_decision(
+        self, user, decision, moment, comment=None, signature=None
+    ):
         """Draw the name, date and status of a decision taken without a
-        signature in the fields of this signer's role, and ``comment`` in
-        its comment field; the signature field stays empty.
+        signature in the fields of this signer's role, ``comment`` in its
+        comment field and ``signature`` in its signature field.
 
         :param user: the ``res.users`` the decision is written for
         :param str decision: ``rejected``, or ``bypassed`` for a tier
@@ -755,6 +971,8 @@ class SignOcaRequestSigner(models.Model):
         :param datetime moment: when the decision is taken, naive UTC
         :param str comment: text of the comment field, or None to leave it
             empty
+        :param str signature: image of the signature field, a data URI, or
+            None to leave it empty
 
         The stamp records the status and the stamped name as its reason
         (context key ``sign_oca_stamp_reason``), which a sealed stamp keeps.
@@ -770,6 +988,8 @@ class SignOcaRequestSigner(models.Model):
             values = self._sign_oca_tier_item_values(user, decision, moment)
         if comment is not None:
             values["comment"] = comment
+        if signature is not None:
+            values["signature"] = signature
         signatory_data = sign_request.signatory_data
         items = {}
         for key, item in signatory_data.items():
@@ -818,17 +1038,25 @@ class SignOcaRequestSigner(models.Model):
         """On a tier request, the fields the server fills are not given to
         the page as fields of the signer's role (``role_id`` is False in the
         copy sent), the others get the placeholders of
-        ``_sign_oca_tier_item_placeholders``, and ``tier_steps_html`` holds
-        the steps panel."""
+        ``_sign_oca_tier_item_placeholders``, the comment field is required
+        when ``_sign_oca_tier_comment_required`` says so, and
+        ``tier_steps_html`` holds the steps panel."""
         result = super().get_info(access_token=access_token)
         if not self.request_id.is_tier_validation:
             return result
         items = copy.deepcopy(result["items"])
         placeholders = self._sign_oca_tier_item_placeholders()
+        comment_required = self._sign_oca_tier_comment_required(self._get_login_user())
         for item in items.values():
             kind = self.request_id._sign_oca_tier_item_kind(item)
             if not item.get("placeholder") and kind in placeholders:
                 item["placeholder"] = placeholders[kind]
+            if (
+                kind == "comment"
+                and comment_required
+                and item.get("role_id") == self.role_id.id
+            ):
+                item["required"] = True
             if item.get("role_id") == self.role_id.id and kind in SERVER_FILLED_KINDS:
                 item["role_id"] = False
         result["items"] = items
@@ -917,7 +1145,7 @@ class SignOcaRequestSigner(models.Model):
                     "status_label": status_label,
                     "date": date,
                     "decided": decided,
-                    "comment": review.comment or "",
+                    "comment": sign_request._sign_oca_tier_comment_of(review),
                     "current": current,
                     "to_sign": to_sign,
                     "bypassed": bypassed,
@@ -951,8 +1179,8 @@ class SignOcaRequestSigner(models.Model):
             message = self.env._("Your signature is recorded.")
         elif signer.tier_bypassed:
             message = self.env._(
-                "This tier is approved along with an earlier tier of the same "
-                "reviewer, without a signature of its own."
+                "This tier is approved along with another tier of the same "
+                "reviewer, with the same signature."
             )
         elif can_sign:
             message = self.env._(
@@ -968,7 +1196,7 @@ class SignOcaRequestSigner(models.Model):
         if can_sign:
             hints = [
                 self.env._("Your comment is required by this tier.")
-                if signer.tier_review_id.has_comment
+                if signer._sign_oca_tier_comment_required(user)
                 else self.env._("Your comment is optional; give one when you refuse."),
                 self.env._(
                     "Your comment is printed in the document and shown to the "

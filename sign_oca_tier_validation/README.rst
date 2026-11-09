@@ -78,7 +78,10 @@ Configuration
   sign as. It is created with the tier's name when a first document is
   sent; it can be set beforehand to reuse an existing role.
 - A tier whose definition has *Comment* checked requires the comment
-  field of the document to be filled in to sign.
+  field of the document to be filled in to sign. The rule is the one
+  the record's *Validate* button applies (``has_comment``): a signature
+  asks for a comment when any tier still to decide by the same reviewer
+  asks for one, such as a later tier approved by bypass.
 
 Usage
 =====
@@ -101,10 +104,14 @@ Sign a validation
   decide: the tiers are decided in the document.
 - A tier whose definition has *Approve Sequence Bypass* is approved
   along with an earlier tier signed by one of its reviewers, as
-  ``base_tier_validation`` does from the record. It needs no signature:
-  the document gets the reviewer's name, the date and the status
-  *Approved (same reviewer)*, its signature and comment stay empty, and
-  the request completes without it.
+  ``base_tier_validation`` does from the record. It needs no signature
+  of its own: the document gets the reviewer's name, the date, the
+  status *Approved (same reviewer)* and the signature drawn on the
+  signed tier, and the request completes without it. The comment goes
+  on the last tier of the series, as the comment wizard writes it on
+  the last review; the earlier tiers' comment field reads *↓ See the
+  note of level N ↓*. With ``sign_oca_pades``, the certificate lists
+  such a tier as *Signed with level N*.
 - Once signed, the page of the signer links to the document, to download
   or view.
 
@@ -187,7 +194,12 @@ For developers
 - ``sign.oca.request._sign_oca_tier_done_signers()`` returns the signers
   whose tier is done: signed, or approved by bypass (``tier_bypassed``).
   ``sign.oca.request.signer._sign_oca_tier_bypass_reviews(user)``
-  returns the reviews an approval by ``user`` approves too.
+  returns the reviews an approval by ``user`` approves too,
+  ``_sign_oca_tier_series_reviews(user)`` the whole series by sequence,
+  and ``_sign_oca_tier_comment_required(user)`` whether the signature
+  needs a comment. ``sign.oca.request._sign_oca_tier_comment_of(review)``
+  returns the comment shown for a tier, or the note pointing to the tier
+  that holds it (``_sign_oca_tier_note``).
 - A decision stamped without a signature (a refusal, a tier approved by
   bypass) passes its status and stamped name in the context key
   ``sign_oca_stamp_reason``; with ``sign_oca_pades``, the seal of that

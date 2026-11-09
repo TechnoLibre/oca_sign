@@ -4,7 +4,7 @@
 {
     "name": "Sign Oca Tier Validation",
     "summary": "Sign the tiers of a validation in a sign_oca document",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.1.0",
     "license": "AGPL-3",
     "author": "TechnoLibre,Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/sign",
