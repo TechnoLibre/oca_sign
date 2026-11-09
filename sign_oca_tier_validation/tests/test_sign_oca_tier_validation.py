@@ -19,10 +19,9 @@ from .common import TIER_KINDS, SignOcaTierMixin, add_tier_items
 
 @tagged("post_install", "-at_install")
 class TestSignOcaTierValidation(SignOcaTierMixin, CommonTierValidation):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls._setup_sign_oca_tier()
+    def setUp(self):
+        super().setUp()
+        self._setup_sign_oca_tier(self.startPatcher)
 
     def _invitations(self, user):
         return self.env["mail.message"].search(

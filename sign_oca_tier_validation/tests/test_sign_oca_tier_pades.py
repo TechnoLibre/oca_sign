@@ -23,7 +23,6 @@ class TestSignOcaTierPades(SignOcaTierMixin, CommonTierValidation):
         super().setUpClass()
         if "pades_final_sha256" not in cls.env["sign.oca.request"]._fields:
             raise SkipTest("sign_oca_pades is not installed")
-        cls._setup_sign_oca_tier()
         from odoo.addons.sign_oca_pades.tests.test_sign_oca_pades import (
             make_certificate,
             make_certificate_pdf,
@@ -44,6 +43,10 @@ class TestSignOcaTierPades(SignOcaTierMixin, CommonTierValidation):
                 return_value=make_certificate_pdf(pages=2),
             )
         )
+
+    def setUp(self):
+        super().setUp()
+        self._setup_sign_oca_tier(self.startPatcher)
 
     def _assert_seals_pass(self, sign_request, count):
         from pyhanko.pdf_utils.reader import PdfFileReader

@@ -37,7 +37,7 @@ class TestSignOcaTierValidationPortal(SignOcaTierMixin, HttpCase):
                 "perm_unlink": 1,
             }
         )
-        cls._setup_sign_oca_tier()
+        cls._setup_sign_oca_tier(cls, cls.startClassPatcher)
 
     @classmethod
     def tearDownClass(cls):

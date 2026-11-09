@@ -55,51 +55,59 @@ def add_tier_items(record, sign_request):
 class SignOcaTierMixin:
     """Users, tier definitions and helpers shared by the tests.
 
-    ``cls.test_model`` and ``cls.tester_model`` are the model and the
-    ``ir.model`` of base_tier_validation's ``tier.validation.tester``.
+    ``test_model`` and ``tester_model`` are the model and the ``ir.model``
+    of base_tier_validation's ``tier.validation.tester``.
     """
 
-    @classmethod
-    def _setup_sign_oca_tier(cls):
-        cls.pdf = anchors_pdf()
-        cls.requester = cls._new_user("sign_tier_requester", "Requester")
-        cls.reviewer_1 = cls._new_user("sign_tier_reviewer_1", "First Reviewer")
-        cls.reviewer_2 = cls._new_user("sign_tier_reviewer_2", "Second Reviewer")
-        cls.reviewer_3 = cls._new_user("sign_tier_reviewer_3", "Third Reviewer")
-        cls.outsider = cls._new_user("sign_tier_outsider", "Outsider")
-        cls.second_tier_group = cls.env["res.groups"].create(
+    def _setup_sign_oca_tier(self, start_patcher):
+        """Create the users and the two tier definitions, and patch the
+        tester model's document hooks with ``start_patcher``.
+
+        ``self`` is the test or its class: base_tier_validation's
+        ``CommonTierValidation`` registers ``tier.validation.tester`` in each
+        test's ``setUp``, so its tests call this from ``setUp`` with
+        ``startPatcher``; a class that registers the model itself calls it
+        from ``setUpClass`` with ``startClassPatcher``.
+        """
+        self.pdf = anchors_pdf()
+        self.requester = self._new_user("sign_tier_requester", "Requester")
+        self.reviewer_1 = self._new_user("sign_tier_reviewer_1", "First Reviewer")
+        self.reviewer_2 = self._new_user("sign_tier_reviewer_2", "Second Reviewer")
+        self.reviewer_3 = self._new_user("sign_tier_reviewer_3", "Third Reviewer")
+        self.outsider = self._new_user("sign_tier_outsider", "Outsider")
+        self.second_tier_group = self.env["res.groups"].create(
             {
                 "name": "Second tier reviewers",
-                "users": [Command.set([cls.reviewer_2.id, cls.reviewer_3.id])],
+                "users": [Command.set([self.reviewer_2.id, self.reviewer_3.id])],
             }
         )
-        definitions = cls.env["tier.definition"]
-        cls.definition_1 = definitions.create(
+        definitions = self.env["tier.definition"]
+        self.definition_1 = definitions.create(
             {
                 "name": "Manager approval",
-                "model_id": cls.tester_model.id,
+                "model_id": self.tester_model.id,
                 "review_type": "individual",
-                "reviewer_id": cls.reviewer_1.id,
+                "reviewer_id": self.reviewer_1.id,
                 "definition_domain": "[('test_field', '=', 2.5)]",
                 "approve_sequence": True,
                 "sequence": 30,
             }
         )
-        cls.definition_2 = definitions.create(
+        self.definition_2 = definitions.create(
             {
                 "name": "Director approval",
-                "model_id": cls.tester_model.id,
+                "model_id": self.tester_model.id,
                 "review_type": "group",
-                "reviewer_group_id": cls.second_tier_group.id,
+                "reviewer_group_id": self.second_tier_group.id,
                 "definition_domain": "[('test_field', '=', 2.5)]",
                 "approve_sequence": True,
                 "has_comment": True,
                 "sequence": 20,
             }
         )
-        tester_class = type(cls.test_model)
-        pdf = cls.pdf
-        cls.startClassPatcher(
+        tester_class = type(self.test_model)
+        pdf = self.pdf
+        start_patcher(
             mock.patch.object(
                 tester_class,
                 "_sign_oca_get_document",
@@ -107,7 +115,7 @@ class SignOcaTierMixin:
                 create=True,
             )
         )
-        cls.startClassPatcher(
+        start_patcher(
             mock.patch.object(
                 tester_class, "_sign_oca_prepare_items", add_tier_items, create=True
             )

@@ -15,10 +15,9 @@ from .common import SignOcaTierMixin
 
 @tagged("post_install", "-at_install")
 class TestSignOcaTierComment(SignOcaTierMixin, CommonTierValidation):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls._setup_sign_oca_tier()
+    def setUp(self):
+        super().setUp()
+        self._setup_sign_oca_tier(self.startPatcher)
 
     def test_comment_field_is_multiline(self):
         comment_field = self.env.ref("sign_oca_tier_validation.sign_field_comment")
