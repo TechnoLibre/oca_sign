@@ -25,7 +25,11 @@ export function patchControllerSignOca() {
                 "sign_oca.sign_oca_group_user"
             );
             if (sign_oca_group_user) {
-                await this.orm
+                // The service of the environment, not the one of the
+                // component: leaving the view before the answer destroys
+                // the controller, and the component's service then rejects
+                // its onWillStart with "Component is destroyed"
+                await this.env.services.orm
                     .call("sign.oca.template", "search_count", [
                         [["model", "=", this.props.resModel]],
                     ])
