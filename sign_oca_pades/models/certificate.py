@@ -50,8 +50,9 @@ class SignOcaPadesCertificate(models.AbstractModel):
               closed before completion (refused or cancelled) are undecided,
               not pending
             - ``signer_status``: ``{signer id: status label}``
-            - ``decisions``: one dict per signer that signed or refused, in
-              signing order (``_get_decision``)
+            - ``decisions``: one dict per signer that signed or refused, or
+              was approved with another signer's decision
+              (``_get_approved_on``), in signing order (``_get_decision``)
             - ``signer_columns``: extra columns of the decisions table
               (``_get_signer_columns``)
             - ``logs``: one dict per log entry (``_get_log``)
@@ -83,7 +84,9 @@ class SignOcaPadesCertificate(models.AbstractModel):
                 signer.id: self._get_signer_status(signer) for signer in signers
             },
             "decisions": [
-                self._get_decision(request, signer, tz_name) for signer in decided
+                self._get_decision(request, signer, tz_name)
+                for signer in signers
+                if signer in decided or self._get_approved_on(signer)
             ],
             "signer_columns": self._get_signer_columns(request),
             "logs": [
@@ -162,6 +165,34 @@ class SignOcaPadesCertificate(models.AbstractModel):
         return bool("tier_bypassed" in signer._fields and signer.tier_bypassed)
 
     @api.model
+    def _get_approved_on(self, signer):
+        """Return when ``signer``'s part was approved without a signature of
+        their own (naive UTC), or False.
+
+        Hook. Default: ``signer._pades_approved_on()`` when the signer
+        model defines it, such as sign_oca_tier_validation giving the time
+        of the signature that approved the tier, else False.
+        """
+        if self._get_approved_without_signature(signer) and hasattr(
+            signer, "_pades_approved_on"
+        ):
+            return signer._pades_approved_on()
+        return False
+
+    @api.model
+    def _get_approved_without_signature_label(self, signer):
+        """Return the status of ``signer``'s part approved without a
+        signature of their own.
+
+        Hook. Default: ``signer._pades_approved_label()`` when the signer
+        model defines it, such as sign_oca_tier_validation naming the tier
+        whose signature it carries, else "Approved without signature".
+        """
+        if hasattr(signer, "_pades_approved_label"):
+            return signer._pades_approved_label()
+        return self.env._("Approved without signature")
+
+    @api.model
     def _get_signers(self, request):
         """Return the signers of ``request`` in signing order.
 
@@ -176,7 +207,7 @@ class SignOcaPadesCertificate(models.AbstractModel):
 
         def sort_key(signer):
             return (
-                self._get_decided_on(signer) or never,
+                self._get_decided_on(signer) or self._get_approved_on(signer) or never,
                 signer.secure_sequence_number or sys.maxsize,
                 signer.id,
             )
@@ -193,7 +224,7 @@ class SignOcaPadesCertificate(models.AbstractModel):
         if self._get_decided_on(signer):
             return self.env._("Refused")
         if self._get_approved_without_signature(signer):
-            return self.env._("Approved without signature")
+            return self._get_approved_without_signature_label(signer)
         if self._is_closed_undecided(signer.request_id):
             return self.env._("Not decided")
         return self.env._("Pending")
@@ -215,10 +246,11 @@ class SignOcaPadesCertificate(models.AbstractModel):
             chain no longer matches)
         """
         reason = "refuse_reason" in signer._fields and signer.refuse_reason
+        moment = self._get_decided_on(signer) or self._get_approved_on(signer)
         return {
             "signer": signer,
             "status": self._get_signer_status(signer),
-            "date": self._format_datetime(self._get_decided_on(signer), tz_name),
+            "date": self._format_datetime(moment, tz_name),
             "reason": reason or False,
             "hash": signer.inalterable_hash or False,
             "altered": bool(signer.inalterable_hash and signer.altered_hash),
@@ -231,24 +263,32 @@ class SignOcaPadesCertificate(models.AbstractModel):
         Hook: append ``(label, getter)`` to add a column, where
         ``getter(signer)`` returns the text of the cell (False prints
         "Not available"). Default: the channel of the decision
-        (``_get_signer_channel``).
+        (``_get_signer_channel``) and the address it came from
+        (``_get_signer_ip``).
         """
         return [
             (
                 self.env._("Channel"),
                 lambda signer: self._get_signer_channel(request, signer),
-            )
+            ),
+            (
+                self.env._("IP address"),
+                lambda signer: self._get_signer_ip(request, signer),
+            ),
         ]
 
     @api.model
-    def _get_signer_channel(self, request, signer):
-        """Return the label of the channel ``signer`` decided from, or False.
+    def _get_decision_log(self, request, signer):
+        """Return the last ``sign`` or ``refuse`` log entry of ``signer``,
+        the one of its decision, or an empty recordset.
 
-        Hook. Default: the channel of the last ``sign`` or ``refuse`` log
-        entry of the signer (``_get_log_channel``). Override it where the
-        decision records its own channel.
+        A signer approved with another signer's decision has no entry of its
+        own: ``signer._pades_decision_signer()``, when the signer model
+        defines it, names the signer whose entry is read.
         """
-        log = (
+        if hasattr(signer, "_pades_decision_signer"):
+            signer = signer._pades_decision_signer()
+        return (
             self.env["sign.oca.request.log"]
             .sudo()
             .search(
@@ -261,7 +301,29 @@ class SignOcaPadesCertificate(models.AbstractModel):
                 limit=1,
             )
         )
+
+    @api.model
+    def _get_signer_channel(self, request, signer):
+        """Return the label of the channel ``signer`` decided from, or False.
+
+        Hook. Default: the channel of the decision's log entry
+        (``_get_decision_log``, ``_get_log_channel``). Override it where the
+        decision records its own channel.
+        """
+        log = self._get_decision_log(request, signer)
         return log and self._get_log_channel(log)
+
+    @api.model
+    def _get_signer_ip(self, request, signer):
+        """Return the address ``signer`` decided from, or False.
+
+        Hook. Default: the address of the decision's log entry
+        (``_get_decision_log``); a decision made outside an HTTP request
+        (``0.0.0.0``) has none. Override it where the decision records its
+        own address.
+        """
+        ip = self._get_decision_log(request, signer).ip
+        return ip if ip and ip != "0.0.0.0" else False
 
     @api.model
     def _get_log_channel(self, log):

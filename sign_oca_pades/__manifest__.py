@@ -4,7 +4,7 @@
 {
     "name": "Sign Oca PAdES",
     "summary": "Seal signed documents with PAdES signatures and a certificate page",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "category": "Sign",
     "license": "AGPL-3",
     "author": "TechnoLibre,Odoo Community Association (OCA)",

@@ -156,6 +156,23 @@ class TestSignOcaPadesCertificate(BaseCommon):
             self.certificate._get_signer_channel(self.request, self.signer_b)
         )
 
+    def test_signer_ip_from_its_decision_log(self):
+        self.signer_a.sudo().signed_on = datetime.datetime(2026, 1, 15, 15, 0, 0)
+        self._log(signer_id=self.signer_a.id, ip="192.0.2.20")
+        self._log(
+            signer_id=self.signer_a.id,
+            action="sign",
+            access_token="token",
+            ip="192.0.2.21",
+        )
+        self._log(signer_id=self.signer_b.id, action="sign", ip="0.0.0.0")
+        ip = self.certificate._get_signer_ip
+        self.assertEqual(ip(self.request, self.signer_a), "192.0.2.21")
+        self.assertFalse(ip(self.request, self.signer_b))
+        html = self._render()
+        self.assertIn("IP address", html)
+        self.assertIn("192.0.2.21", html)
+
     def test_logs_skip_editor_actions_and_keep_order(self):
         self._log(action="configure", user_agent="EditorAgent/1.0")
         late = self._log(
@@ -185,7 +202,9 @@ class TestSignOcaPadesCertificate(BaseCommon):
             html = self._render()
         self.assertIn("Audit trail", html)
         self.assertIn(f"cell-{self.signer_a.id}", html)
-        self.assertIn("Channel", self._render())
+        html = self._render()
+        self.assertIn("Channel", html)
+        self.assertIn("IP address", html)
 
     def test_refusal_listed_with_reason(self):
         if "refused_on" not in self.signer_a._fields:
